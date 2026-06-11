@@ -40,11 +40,7 @@ AUTH_USER_MODEL = "core.User"
 
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get('REDIS_URL'),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
+         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     }
 }
 

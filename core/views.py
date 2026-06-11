@@ -15,7 +15,6 @@ from django.core.cache import cache
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone  
-from django.views.decorators.cache import cache_page
 from device.models import (
     Command,
     Device,
@@ -30,7 +29,8 @@ User = get_user_model()
 
 # Pages
 #This will cache the page for 15 Min
-@cache_page(60 * 15)
+
+
 def home(request):
     return render(request, 'index.html')
 
