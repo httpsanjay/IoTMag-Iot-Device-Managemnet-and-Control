@@ -1,0 +1,24 @@
+<h3>Upload Firmware</h3>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <p>
+        <label>Version</label><br>
+        <input type="text" name="version">
+    </p>
+
+    <p>
+        <label>Firmware File (.bin)</label><br>
+        <input type="file" name="firmware_file">
+    </p>
+
+    <p>
+        <label>Release Notes</label><br>
+        <textarea name="release_notes"></textarea>
+    </p>
+
+    <button type="submit">
+        Upload Firmware
+    </button>
+</form>

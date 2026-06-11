@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .login-page {
+    min-height: 100vh;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .login-card {
+    background: #fff;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2rem;
+    text-decoration: none;
+  }
+  .login-logo-mark {
+    width: 28px; height: 28px;
+    background: #0F6E56;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-logo-mark i { color: #fff; font-size: 14px; }
+  .login-logo-text { font-size: 15px; font-weight: 600; color: #111; letter-spacing: -0.3px; }
+  .login-logo-text span { color: #1D9E75; }
+
+  .login-title { font-size: 20px; font-weight: 600; color: #111; letter-spacing: -0.4px; margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: #888; margin-bottom: 1.75rem; }
+
+  .login-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #FCEBEB;
+    border: 0.5px solid #F09595;
+    border-radius: 8px;
+    padding: 9px 12px;
+    margin-bottom: 1rem;
+    font-size: 12px;
+    color: #A32D2D;
+  }
+  .login-error i { font-size: 14px; flex-shrink: 0; }
+
+  .login-field { margin-bottom: 1rem; }
+  .login-field-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+  .login-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+  }
+  .login-field input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .login-field input:focus {
+    border-color: #1D9E75;
+    box-shadow: 0 0 0 3px rgba(29,158,117,0.1);
+  }
+
+  .login-forgot { font-size: 12px; color: #1D9E75; text-decoration: none; }
+  .login-forgot:hover { text-decoration: underline; }
+
+  .login-submit {
+    width: 100%;
+    padding: 10px;
+    background: #0F6E56;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.12s;
+  }
+  .login-submit:hover { background: #085041; }
+
+  .login-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 1.25rem 0;
+  }
+  .login-divider-line { flex: 1; height: 0.5px; background: #e5e7eb; }
+  .login-divider-text { font-size: 11px; color: #aaa; }
+
+  .login-signup-row { text-align: center; font-size: 12px; color: #888; }
+  .login-signup-row a { color: #1D9E75; text-decoration: none; font-weight: 500; }
+  .login-signup-row a:hover { text-decoration: underline; }
+</style>
+
+<div class="login-page">
+  <div class="login-card">
+
+    <a href="{% url 'home' %}" class="login-logo">
+      <div class="login-logo-mark"><i class="ti ti-cpu"></i></div>
+      <span class="login-logo-text">IoT<span>Mag</span></span>
+    </a>
+
+    <div class="login-title">Welcome back</div>
+    <div class="login-sub">Sign in to your IoTMag account</div>
+
+    {% if error %}
+    <div class="login-error">
+      <i class="ti ti-alert-circle"></i>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="login-field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="e.g. sanjay_dev" required>
+      </div>
+
+      <div class="login-field">
+        <div class="login-field-row">
+          <label for="password">Password</label>
+          <a href="{% url 'password_reset' %}" class="login-forgot">Forgot password?</a>
+        </div>
+        <input type="password" id="password" name="password" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" class="login-submit">Sign in</button>
+    </form>
+
+    <div class="login-divider">
+      <div class="login-divider-line"></div>
+      <span class="login-divider-text">or</span>
+      <div class="login-divider-line"></div>
+    </div>
+
+    <div class="login-signup-row">
+      Don't have an account? <a href="{% url 'signup' %}">Sign up for free</a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

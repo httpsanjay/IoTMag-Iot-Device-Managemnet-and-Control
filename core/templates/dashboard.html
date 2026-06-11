@@ -1,0 +1,717 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f9fafb; }
+
+  /* ── Nav ── */
+  .dash-nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: #fff; border-bottom: 0.5px solid #e5e7eb; }
+  .dash-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .dash-logo-mark { width: 28px; height: 28px; background: #0F6E56; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .dash-logo-mark i { color: #fff; font-size: 14px; }
+  .dash-logo-text { font-size: 15px; font-weight: 600; color: #111; letter-spacing: -0.3px; }
+  .dash-logo-text span { color: #1D9E75; }
+  .dash-nav-links { display: flex; gap: 4px; list-style: none; }
+  .dash-nav-links a { font-size: 13px; color: #555; text-decoration: none; padding: 5px 11px; border-radius: 6px; transition: background 0.12s; }
+  .dash-nav-links a:hover { background: #f5f5f5; color: #111; }
+  .dash-nav-links a.active { color: #0F6E56; background: #E1F5EE; }
+  .dash-nav-right { display: flex; align-items: center; gap: 8px; }
+  .dash-avatar-wrap { position: relative; }
+  .dash-avatar { width: 30px; height: 30px; background: #0F6E56; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; cursor: pointer; }
+  .dash-dropdown { position: absolute; right: 0; top: calc(100% + 8px); background: #fff; border: 0.5px solid #e5e7eb; border-radius: 12px; padding: 6px; min-width: 170px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); z-index: 100; opacity: 0; pointer-events: none; transform: translateY(-4px); transition: opacity 0.15s, transform 0.15s; }
+  .dash-dropdown.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .dash-dropdown-header { padding: 7px 10px 9px; border-bottom: 0.5px solid #f0f0f0; margin-bottom: 4px; }
+  .dash-dropdown-name { font-size: 13px; font-weight: 500; color: #111; }
+  .dash-dropdown-email { font-size: 11px; color: #888; margin-top: 1px; }
+  .dash-dropdown a, .dash-dropdown button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 10px; border-radius: 7px; font-size: 13px; color: #555; text-decoration: none; border: none; background: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.1s; }
+  .dash-dropdown a:hover, .dash-dropdown button:hover { background: #f5f5f5; color: #111; }
+  .dash-dropdown a i, .dash-dropdown button i { font-size: 15px; }
+  .dash-dropdown-divider { height: 0.5px; background: #f0f0f0; margin: 4px 0; }
+  .dash-logout { color: #A32D2D !important; }
+  .dash-logout i { color: #A32D2D !important; }
+  .dash-logout:hover { background: #FCEBEB !important; }
+.view-all-link {
+    margin-top: 12px;
+    text-align: right;
+}
+
+.view-all-link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    color: #0F6E56;
+    text-decoration: none;
+
+    padding: 6px 12px;
+    border-radius: 8px;
+
+    transition: all 0.15s ease;
+}
+
+.view-all-link a:hover {
+    background: #E1F5EE;
+    color: #085041;
+}
+  /* ── Page ── */
+  .dash-page { padding: 1.5rem; }
+  .dash-page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; }
+  .dash-page-title { font-size: 20px; font-weight: 600; color: #111; letter-spacing: -0.4px; }
+  .dash-page-sub { font-size: 13px; color: #888; margin-top: 2px; }
+
+  /* ── Buttons ── */
+  .btn { font-size: 13px; font-weight: 500; padding: 7px 16px; border-radius: 8px; border: 0.5px solid; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.12s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .btn-primary:hover { background: #085041; }
+  .btn-ghost { background: #fff; color: #555; border-color: #e5e7eb; }
+  .btn-ghost:hover { background: #f5f5f5; }
+  .btn-danger { background: #fff; color: #A32D2D; border-color: #F09595; }
+  .btn-danger:hover { background: #FCEBEB; }
+  .btn-sm { font-size: 12px; padding: 5px 12px; }
+
+  /* ── Stats ── */
+  .dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .dash-stat { background: #f3f4f6; border-radius: 8px; padding: 0.9rem 1rem; }
+  .dash-stat-label { font-size: 11px; color: #888; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+  .dash-stat-label i { font-size: 13px; }
+  .dash-stat-value { font-size: 22px; font-weight: 600; color: #111; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.5px; }
+  .dash-stat-value.online { color: #0F6E56; }
+
+  /* ── Cards ── */
+  .dash-card { background: #fff; border: 0.5px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; }
+  .dash-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .dash-card-title { font-size: 14px; font-weight: 500; color: #111; display: flex; align-items: center; gap: 6px; }
+  .dash-card-title i { font-size: 16px; color: #0F6E56; }
+
+  /* ── Add device panel ── */
+  .add-device-panel {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0,0,0,0.45);
+
+    z-index: 9999;
+
+    justify-content: center;
+    align-items: flex-start;
+
+    padding-top: 60px;
+  }
+
+  .add-device-panel.open {
+    display: flex;
+  }
+  .add-panel-title { font-size: 13px; font-weight: 500; color: #111; margin-bottom: 0.85rem; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .dash-field label { display: block; font-size: 11px; font-weight: 500; color: #555; margin-bottom: 4px; }
+  .dash-field input, .dash-field select { width: 100%; padding: 7px 10px; font-size: 12px; font-family: 'Inter', sans-serif; border: 0.5px solid #e5e7eb; border-radius: 7px; background: #fff; color: #111; outline: none; }
+  .dash-field input:focus, .dash-field select:focus { border-color: #1D9E75; box-shadow: 0 0 0 2px rgba(29,158,117,0.12); }
+
+  /* ── Table ── */
+  .dash-table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+  th { font-size: 11px; font-weight: 500; color: #888; text-align: left; padding: 7px 10px; border-bottom: 0.5px solid #e5e7eb; white-space: nowrap; }
+  td { padding: 9px 10px; border-bottom: 0.5px solid #f0f0f0; color: #111; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr.manage-row td { background: #f9fafb; padding: 1rem; white-space: normal; overflow: visible; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; color: #111; }
+
+  /* ── Badges ── */
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; }
+  .badge-online { background: #E1F5EE; color: #085041; }
+  .badge-offline { background: #f3f4f6; color: #888; }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .badge-online .badge-dot { background: #1D9E75; }
+  .badge-offline .badge-dot { background: #aaa; }
+  .cmd-badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
+  .cmd-received { background: #525a9d; color: #ffffff; }
+  .cmd-completed { background: #E1F5EE; color: #085041; }
+  .cmd-pending { background: #FAEEDA; color: #633806; }
+  .cmd-failed { background: #FCEBEB; color: #791F1F; }
+
+  /* ── Manage panel ── */
+  .manage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .manage-info p { font-size: 12px; color: #888; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .manage-info span { color: #111; font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+  .manage-actions { display: flex; gap: 6px; margin-top: 0.85rem; flex-wrap: wrap; }
+.badge-online {
+    background: #E1F5EE;
+    color: #085041;
+}
+
+.badge-offline {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.badge-warning {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.badge-error {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.badge-critical {
+    background: #DC2626;
+    color: white;
+}
+
+.badge-unknown {
+    background: #E5E7EB;
+    color: #4B5563;
+}
+
+.badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.badge-online .badge-dot {
+    background: #10B981;
+}
+
+.badge-offline .badge-dot {
+    background: #9CA3AF;
+}
+
+.badge-warning .badge-dot {
+    background: #F59E0B;
+}
+
+.badge-error .badge-dot {
+    background: #EF4444;
+}
+
+.badge-critical .badge-dot {
+    background: white;
+}
+
+.badge-unknown .badge-dot {
+    background: #6B7280;
+}
+  /* ── Two-col ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+  .two-col .dash-card { margin-bottom: 0; }
+
+  /* ── Empty ── */
+  .dash-empty { text-align: center; padding: 2rem; color: #888; font-size: 13px; }
+  .dash-empty i { font-size: 32px; display: block; margin-bottom: 8px; }
+
+  .manage-modal{
+    display:none;
+
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,.45);
+
+    z-index:9999;
+
+    justify-content:center;
+    align-items:flex-start;
+
+    padding-top:60px;
+  }
+
+  .manage-modal.open{
+    display:flex;
+  }
+
+  .manage-modal-content{
+    background:white;
+
+    width:900px;
+    max-width:90%;
+
+    border-radius:12px;
+
+    padding:24px;
+  }
+</style>
+
+
+
+<!-- Page -->
+<div class="dash-page">
+
+  <!-- Header -->
+  <div class="dash-page-header">
+    <div>
+      <div class="dash-page-title">Dashboard</div>
+      <div class="dash-page-sub">Welcome back, {{ request.user.username }}</div>
+    </div>
+    <button class="btn btn-primary" onclick="toggleAddDevice()">
+      <i class="ti ti-plus"></i> Add device
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="dash-stats">
+    <div class="dash-stat">
+      <div class="dash-stat-label"><i class="ti ti-cpu"></i> Total devices</div>
+      <div class="dash-stat-value">{{ devices.count }}</div>
+    </div>
+<div class="dash-stat">
+  <div class="dash-stat-label">
+    <i class="ti ti-wifi"></i> Online Devices
+  </div>
+
+  <div class="dash-stat-value online">
+    {{ online_count }}
+  </div>
+</div>
+    <div class="dash-stat">
+      <div class="dash-stat-label"><i class="ti ti-terminal-2"></i> Commands sent</div>
+      <div class="dash-stat-value">{{ commands.count }}</div>
+    </div>
+    <div class="dash-stat">
+      <div class="dash-stat-label"><i class="ti ti-user"></i> Account</div>
+      <div class="dash-stat-value" style="font-size:14px;font-family:'Inter',sans-serif;letter-spacing:0">{{ request.user.username }}</div>
+    </div>
+  </div>
+
+  <!-- Devices card -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <div class="dash-card-title"><i class="ti ti-device-desktop"></i> My devices</div>
+    </div>
+
+    <div class="add-device-panel" id="addDevicePanel">
+
+    <div
+        style="
+            background:white;
+            width:700px;
+            max-width:90%;
+            border-radius:12px;
+            padding:24px;
+        "
+    >
+
+
+
+
+      <div class="add-panel-title">Register a new device</div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="field-row-3">
+          <div class="dash-field">
+            <label>Device name</label>
+            <input type="text" name="device_name" placeholder="e.g. Sensor-01" required>
+          </div>
+          <div class="dash-field">
+            <label>Purpose</label>
+            <input type="text" name="purpose" placeholder="e.g. Temperature monitoring">
+          </div>
+          <div class="dash-field">
+            <label>Device type</label>
+            <input type="text" name="device_type" placeholder="e.g. ESP32-S3">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button type="submit" class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Add device</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAddDevice()">Cancel</button>
+        </div>
+    </div>
+      </form>
+    </div>
+
+    {% if devices %}
+    <div class="dash-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:18%">Device name</th>
+            <th style="width:20%">Device ID</th>
+            <th style="width:18%">Secret</th>
+            <th style="width:11%">Status</th>
+            <th style="width:15%">Last seen</th>
+            <th style="width:18%">Manage</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for device in devices %}
+          <tr>
+            <td>{{ device.device_name }}</td>
+            <td><code>{{ device.device_id }}</code></td>
+            <td><code>••••••••••••</code></td>
+<td>
+    {% if device.status == "online" %}
+        <span class="badge badge-online">
+            <span class="badge-dot"></span>
+            Online
+        </span>
+
+    {% elif device.status == "offline" %}
+        <span class="badge badge-offline">
+            <span class="badge-dot"></span>
+            Offline
+        </span>
+
+    {% elif device.status == "warning" %}
+        <span class="badge badge-warning">
+            <span class="badge-dot"></span>
+            Warning
+        </span>
+
+    {% elif device.status == "error" %}
+        <span class="badge badge-error">
+            <span class="badge-dot"></span>
+            Error
+        </span>
+
+    {% elif device.status == "critical" %}
+        <span class="badge badge-critical">
+            <span class="badge-dot"></span>
+            Critical
+        </span>
+
+    {% else %}
+        <span class="badge badge-unknown">
+            <span class="badge-dot"></span>
+            Unknown
+        </span>
+    {% endif %}
+</td>
+            <td>{{ device.last_seen }}</td>
+            <td>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="toggleManage('{{ device.id }}')">
+                <i class="ti ti-settings"></i> Manage
+              </button>
+            </td>
+          </tr>
+          <div id="manage-{{ device.id }}" class="manage-modal">
+
+    <div class="manage-modal-content">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3>{{ device.device_name }}</h3>
+
+            <button
+                type="button"
+                class="btn btn-ghost btn-sm"
+                onclick="closeManage('{{ device.id }}')">
+                Close
+            </button>
+        </div>
+
+        <div class="manage-grid">
+
+            <div>
+
+                <div style="font-size:12px;font-weight:500;color:#111;margin-bottom:0.75rem;">
+                    Edit device
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="device_id"
+                        value="{{ device.id }}">
+
+                    <div class="dash-field" style="margin-bottom:8px;">
+                        <label>Device name</label>
+
+                        <input
+                            type="text"
+                            name="device_name_edit"
+                            value="{{ device.device_name }}">
+                    </div>
+
+                    <div class="manage-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary btn-sm">
+                            Save
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-ghost btn-sm"
+                            onclick="closeManage('{{ device.id }}')">
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </form>
+
+                <form method="POST" action="{% url 'delete_device' %}"
+                style="margin-top:8px;">
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="device_id"
+                        value="{{ device.id }}">
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger btn-sm"
+                        onclick="return confirm('Delete {{ device.device_name }}?');">
+
+                        Delete Device
+
+                    </button>
+                </form>
+
+            </div>
+
+            <div class="manage-info">
+
+                <div style="font-size:12px;font-weight:500;color:#111;margin-bottom:0.75rem;">
+                    Device details
+                </div>
+
+                <p>Status <span>{{ device.status }}</span></p>
+
+                <p>Last seen <span>{{ device.last_seen }}</span></p>
+
+                <p>Uptime <span>{{ device.uptime|default:"—" }}</span></p>
+
+                <p>Device ID <span>{{ device.device_id }}</span></p>
+
+                <p>Device Secret <span>{{ device.device_secret | slice:":5" }}****</span></p> 
+
+                <div class="manage-actions">
+<button
+    type="button" 
+    class="btn btn-ghost btn-sm"
+    onclick="copydeviceDetail('{{ device.device_id|escapejs }}', '{{ device.device_secret|escapejs }}')">
+    Copy device details
+</button>
+
+                    <form method="GET" action="{% url 'telemetry_page' %}">
+                        <input
+                            type="hidden"
+                            name="device_id"
+                            value="{{ device.device_id }}">
+
+                        <button
+                            type="submit"
+                            class="btn btn-ghost btn-sm">
+                            View telemetry
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="dash-empty">
+      <i class="ti ti-cpu"></i>
+      No devices registered yet. Add your first device above.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Telemetry + Commands -->
+  <div class="two-col">
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-card-title"><i class="ti ti-chart-line"></i> Telemetry</div>
+      </div>
+      <form method="GET" action="{% url 'telemetry_page' %}">
+        <div class="dash-field" style="margin-bottom:10px;">
+          <label>Device</label>
+          <select name="device_id" style="width:100%;padding:7px 10px;font-size:12px;font-family:'Inter',sans-serif;border:0.5px solid #e5e7eb;border-radius:7px;background:#fff;color:#111;outline:none;">
+            {% for device in devices %}
+            <option value="{{ device.device_id }}">{{ device.device_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm" style="width:100%;">
+          <i class="ti ti-chart-bar"></i> View telemetry
+        </button>
+      </form>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-card-title"><i class="ti ti-terminal-2"></i> Send command</div>
+      </div>
+      
+      <form method="POST" action="{% url 'dashboard' %}">
+        {% csrf_token %}
+        <div class="dash-field" style="margin-bottom:10px;">
+          <label>Device</label>
+          <select name="device_id" style="width:100%;padding:7px 10px;font-size:12px;font-family:'Inter',sans-serif;border:0.5px solid #e5e7eb;border-radius:7px;background:#fff;color:#111;outline:none;">
+            {% for device in devices %}
+            <option value="{{ device.device_id }}">{{ device.device_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="dash-field" style="margin-bottom:10px;">
+          <label>Command</label>
+          <input type="text" name="command" placeholder="e.g. restart"
+            style="width:100%;padding:7px 10px;font-size:12px;font-family:'Inter',sans-serif;border:0.5px solid #e5e7eb;border-radius:7px;background:#fff;color:#111;outline:none;">
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm" style="width:100%;">
+          <i class="ti ti-send"></i> Send command
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Recent commands -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <div class="dash-card-title"><i class="ti ti-history"></i> Recent commands</div>
+    </div>
+    <div class="dash-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:22%">Command ID</th>
+            <th style="width:18%">Device</th>
+            <th style="width:15%">Command</th>
+            <th style="width:14%">Status</th>
+            <th style="width:31%">Timestamp</th>
+          </tr>
+        </thead>
+<div class="table-container">
+  <table>
+    <thead>
+      <!-- Your table headers here -->
+    </thead>
+    <tbody>
+      {% for command in commands|slice:":5" %}
+      <tr>
+        <td><code>{{ command.command_id }}</code></td>
+        <td>{{ command.device.device_name }}</td>
+        <td><code>{{ command.command|default:command.multicommands }}</code></td>
+        <td>
+          {% if command.command_status == "pending" %}
+            <span class="cmd-badge cmd-pending">Pending</span>
+          {% elif command.command_status == "received" %}
+            <span class="cmd-badge cmd-received">Received</span>
+          {% elif command.command_status == "completed" %}
+            <span class="cmd-badge cmd-completed">Completed</span>
+          {% else %}
+            <span class="cmd-badge cmd-failed">Failed</span>
+          {% endif %}
+        </td>
+        <td>{{ command.timestamp }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" style="text-align:center;color:#888;padding:1.5rem;">No commands yet</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% if commands|length > 5 %}
+<div class="view-all-link">
+    <a href="{% url 'all_commands' %}">
+        <i class="ti ti-arrow-right"></i>
+        View all commands
+    </a>
+</div>
+{% endif %}
+</div>
+
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const dashAvatarBtn = document.getElementById('dashAvatarBtn');
+  const dashDropdown  = document.getElementById('dashDropdown');
+  dashAvatarBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = dashDropdown.classList.toggle('open');
+    dashAvatarBtn.setAttribute('aria-expanded', open);
+  });
+  document.addEventListener('click', () => {
+    dashDropdown.classList.remove('open');
+    dashAvatarBtn.setAttribute('aria-expanded', false);
+  });
+  dashDropdown.addEventListener('click', e => e.stopPropagation());
+
+function toggleAddDevice() {
+    document
+        .getElementById('addDevicePanel')
+        .classList.toggle('open');
+}
+
+document
+    .getElementById('addDevicePanel')
+    .addEventListener('click', function(e){
+
+        if(e.target === this){
+            this.classList.remove('open');
+        }
+
+    });
+
+function toggleManage(deviceId) {
+    document
+        .getElementById('manage-' + deviceId)
+        .classList.add('open');
+}
+
+function closeManage(deviceId) {
+    document
+        .getElementById('manage-' + deviceId)
+        .classList.remove('open');
+}
+function copydeviceDetail(ID, secret) {
+    // Format the text layout for the clipboard
+    const textToCopy = `Device ID: ${ID}\nDevice Secret: ${secret}`;
+
+    // Check if the Clipboard API is available
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(textToCopy)
+            .then(() => showFeedback())
+            .catch(err => console.error('Copy failed: ', err));
+    } else {
+        // Fallback for older browsers or non-HTTPS environments
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        textArea.style.position = "fixed"; // Avoid scrolling to bottom
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showFeedback();
+        } catch (err) {
+            console.error('Fallback copy failed: ', err);
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
+
+</script>
+
+{% endblock %}

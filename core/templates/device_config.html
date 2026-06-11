@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f9fafb; }
+
+  /* ── Nav ── */
+  .dc-nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: #fff; border-bottom: 0.5px solid #e5e7eb; }
+  .dc-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .dc-logo-mark { width: 28px; height: 28px; background: #0F6E56; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .dc-logo-mark i { color: #fff; font-size: 14px; }
+  .dc-logo-text { font-size: 15px; font-weight: 500; color: #111; letter-spacing: -0.3px; }
+  .dc-logo-text span { color: #1D9E75; }
+  .dc-nav-links { display: flex; gap: 4px; list-style: none; }
+  .dc-nav-links a { font-size: 13px; color: #555; text-decoration: none; padding: 5px 11px; border-radius: 6px; transition: background 0.12s; }
+  .dc-nav-links a:hover { background: #f5f5f5; }
+  .dc-nav-links a.active { color: #0F6E56; background: #E1F5EE; }
+  .dc-nav-avatar { width: 30px; height: 30px; background: #0F6E56; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #fff; }
+
+  /* ── Page ── */
+  .dc-page { padding: 1.5rem; }
+  .dc-page-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px; }
+  .dc-page-left { display: flex; align-items: center; gap: 10px; }
+  .dc-back { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #555; text-decoration: none; padding: 5px 10px; border: 0.5px solid #e5e7eb; border-radius: 7px; background: #fff; }
+  .dc-page-title { font-size: 20px; font-weight: 500; color: #111; letter-spacing: -0.4px; }
+  .dc-page-sub { font-size: 13px; color: #888; margin-top: 1px; }
+  .dc-device-picker { display: flex; align-items: center; gap: 8px; }
+  .dc-device-picker label { font-size: 12px; color: #555; }
+  .dc-device-select { font-size: 13px; font-family: 'Inter', sans-serif; padding: 6px 12px; border: 0.5px solid #e5e7eb; border-radius: 7px; background: #fff; color: #111; outline: none; }
+  .dc-device-select:focus { border-color: #1D9E75; }
+
+  /* ── Layout ── */
+  .dc-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+  /* ── Card ── */
+  .dc-card { background: #fff; border: 0.5px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; margin-bottom: 12px; }
+  .dc-card.no-mb { margin-bottom: 0; }
+  .dc-card-title { font-size: 13px; font-weight: 500; color: #111; display: flex; align-items: center; gap: 6px; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid #f0f0f0; }
+  .dc-card-title i { font-size: 16px; color: #0F6E56; }
+  .dc-card-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1rem; padding-top: 1rem; border-top: 0.5px solid #f0f0f0; }
+  .dc-inner-title { font-size: 13px; font-weight: 500; color: #111; display: flex; align-items: center; gap: 6px; margin: 1rem 0 0.75rem; padding-top: 1rem; border-top: 0.5px solid #f0f0f0; }
+  .dc-inner-title i { font-size: 16px; color: #0F6E56; }
+
+  /* ── Info rows ── */
+  .dc-info-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 0.5px solid #f5f5f5; font-size: 12px; }
+  .dc-info-row:last-child { border-bottom: none; }
+  .dc-info-label { color: #888; }
+  .dc-info-val { color: #111; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+  /* ── Badges ── */
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.7; }
+  .badge-online   { background: #E1F5EE; color: #085041; }
+  .badge-offline  { background: #f3f4f6; color: #888; }
+  .badge-error    { background: #FCEBEB; color: #A32D2D; }
+  .badge-success  { background: #E1F5EE; color: #085041; }
+  .badge-pending  { background: #FAEEDA; color: #854F0B; }
+  .badge-failed   { background: #FCEBEB; color: #791F1F; }
+
+  /* ── Health ── */
+  .dc-health-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 0.5px solid #f5f5f5; font-size: 12px; }
+  .dc-health-row:last-child { border-bottom: none; }
+  .dc-health-label { color: #888; width: 90px; flex-shrink: 0; }
+  .dc-health-bar-wrap { flex: 1; height: 4px; background: #f0f0f0; border-radius: 99px; overflow: hidden; }
+  .dc-health-bar { height: 100%; border-radius: 99px; }
+  .dc-health-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; min-width: 60px; text-align: right; color: #111; }
+
+  /* ── Fields ── */
+  .dc-field { margin-bottom: 10px; }
+  .dc-field:last-of-type { margin-bottom: 0; }
+  .dc-field label { display: block; font-size: 11px; font-weight: 500; color: #555; margin-bottom: 4px; }
+  .dc-field input, .dc-field select { width: 100%; padding: 7px 10px; font-size: 12px; font-family: 'Inter', sans-serif; border: 0.5px solid #e5e7eb; border-radius: 7px; background: #fff; color: #111; outline: none; }
+  .dc-field input:focus, .dc-field select:focus { border-color: #1D9E75; box-shadow: 0 0 0 2px rgba(29,158,117,0.1); }
+  .dc-field-hint { font-size: 11px; color: #aaa; margin-top: 3px; }
+  .dc-cmd-row { display: flex; gap: 6px; }
+  .dc-cmd-input { flex: 1; padding: 7px 10px; font-size: 12px; font-family: 'Inter', sans-serif; border: 0.5px solid #e5e7eb; border-radius: 7px; background: #fff; color: #111; outline: none; }
+  .dc-cmd-input:focus { border-color: #1D9E75; }
+
+  /* ── Buttons ── */
+  .btn { font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 7px; border: 0.5px solid; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.12s; display: inline-flex; align-items: center; gap: 5px; }
+  .btn-primary { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .btn-primary:hover { background: #085041; }
+  .btn-ghost { background: #fff; color: #555; border-color: #e5e7eb; }
+  .btn-ghost:hover { background: #f5f5f5; }
+  .btn-danger { background: #fff; color: #A32D2D; border-color: #F09595; }
+  .btn-danger:hover { background: #FCEBEB; }
+  .btn-blue { background: #fff; color: #185FA5; border-color: #B5D4F4; }
+  .btn-blue:hover { background: #E6F1FB; }
+  .btn-sm { font-size: 11px; padding: 5px 11px; }
+
+  /* ── Actions ── */
+  .dc-action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .dc-action-card { background: #f9fafb; border: 0.5px solid #e5e7eb; border-radius: 10px; padding: 1rem; }
+  .dc-action-card.danger { border-color: #F09595; }
+  .dc-action-title { font-size: 12px; font-weight: 500; color: #111; margin-bottom: 3px; }
+  .dc-action-title.danger { color: #A32D2D; }
+  .dc-action-desc { font-size: 11px; color: #888; margin-bottom: 10px; line-height: 1.5; }
+
+  /* ── Table ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { font-size: 11px; font-weight: 500; color: #888; text-align: left; padding: 6px 8px; border-bottom: 0.5px solid #e5e7eb; }
+  td { padding: 7px 8px; border-bottom: 0.5px solid #f5f5f5; color: #111; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f3f4f6; padding: 2px 5px; border-radius: 4px; }
+</style>
+
+
+
+<div class="dc-page">
+
+  <!-- Page header + device picker -->
+  <div class="dc-page-top">
+    <div class="dc-page-left">
+      <a href="{% url 'dashboard' %}" class="dc-back"><i class="ti ti-arrow-left"></i> Dashboard</a>
+      <div>
+        <div class="dc-page-title">Device Configuration</div>
+        <div class="dc-page-sub">Manage settings, firmware, and commands</div>
+      </div>
+    </div>
+    <form method="GET" class="dc-device-picker">
+      <label>Device</label>
+      <select class="dc-device-select" name="device" onchange="this.form.submit()">
+        {% for d in devices %}
+        <option value="{{ d.device_id }}"
+          {% if device and d.device_id == device.device_id %}selected{% endif %}>
+          {{ d.device_name }}
+        </option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% if device %}
+
+  <!-- Overview + Health -->
+  <div class="dc-two-col">
+    <div class="dc-card no-mb">
+      <div class="dc-card-title"><i class="ti ti-info-circle"></i> Device overview</div>
+      <div class="dc-info-row"><span class="dc-info-label">Name</span><span class="dc-info-val">{{ device.device_name }}</span></div>
+      <div class="dc-info-row"><span class="dc-info-label">Device ID</span><span class="dc-info-val">{{ device.device_id }}</span></div>
+      <div class="dc-info-row">
+        <span class="dc-info-label">Status</span>
+        {% if device.status == "online" %}
+          <span class="badge badge-online"><span class="badge-dot"></span>Online</span>
+        {% elif device.status == "error" %}
+          <span class="badge badge-error"><span class="badge-dot"></span>Error</span>
+        {% else %}
+          <span class="badge badge-offline"><span class="badge-dot"></span>Offline</span>
+        {% endif %}
+      </div>
+      <div class="dc-info-row"><span class="dc-info-label">Purpose</span><span class="dc-info-val">{{ device.purpose|default:"—" }}</span></div>
+      <div class="dc-info-row"><span class="dc-info-label">Device type</span><span class="dc-info-val">{{ device.device_type|default:"—" }}</span></div>
+      <div class="dc-info-row"><span class="dc-info-label">Manufacturer</span><span class="dc-info-val">{{ device.manufacturer|default:"—" }}</span></div>
+      <div class="dc-info-row"><span class="dc-info-label">Hardware ver.</span><span class="dc-info-val">{{ device.hardware_version|default:"—" }}</span></div>
+      <div class="dc-info-row"><span class="dc-info-label">IP address</span><span class="dc-info-val">{{ device.ip_address|default:"—" }}</span></div>
+      <div class="dc-info-row"><span class="dc-info-label">MAC address</span><span class="dc-info-val">{{ device.mac_address|default:"—" }}</span></div>
+      <div class="dc-info-row"><span class="dc-info-label">Last seen</span><span class="dc-info-val">{{ device.last_seen|default:"—" }}</span></div>
+      <div class="dc-info-row"><span class="dc-info-label">Created</span><span class="dc-info-val">{{ device.created_at }}</span></div>
+    </div>
+
+    <div class="dc-card no-mb">
+      <div class="dc-card-title"><i class="ti ti-heart-rate-monitor"></i> Device health</div>
+      {% if device.health %}
+      {% with h=device.health %}
+      <div class="dc-health-row">
+        <span class="dc-health-label">CPU usage</span>
+        <div class="dc-health-bar-wrap">
+          <div class="dc-health-bar" style="width:{{ h.cpu_usage }}%;background:{% if h.cpu_usage > 80 %}#A32D2D{% elif h.cpu_usage > 60 %}#854F0B{% else %}#0F6E56{% endif %};"></div>
+        </div>
+        <span class="dc-health-val">{{ h.cpu_usage }}%</span>
+      </div>
+      <div class="dc-health-row">
+        <span class="dc-health-label">Memory</span>
+        <div class="dc-health-bar-wrap">
+          <div class="dc-health-bar" style="width:{{ h.memory_usage }}%;background:{% if h.memory_usage > 80 %}#A32D2D{% elif h.memory_usage > 60 %}#854F0B{% else %}#0F6E56{% endif %};"></div>
+        </div>
+        <span class="dc-health-val">{{ h.memory_usage }}%</span>
+      </div>
+      <div class="dc-health-row">
+        <span class="dc-health-label">Storage</span>
+        <div class="dc-health-bar-wrap">
+          <div class="dc-health-bar" style="width:{{ h.storage_usage }}%;background:#0F6E56;"></div>
+        </div>
+        <span class="dc-health-val">{{ h.storage_usage }}%</span>
+      </div>
+      <div class="dc-health-row">
+        <span class="dc-health-label">Temperature</span>
+        <div class="dc-health-bar-wrap">
+          <div class="dc-health-bar" style="width:{% widthratio h.temperature 80 100 %}%;background:{% if h.temperature > 60 %}#A32D2D{% elif h.temperature > 40 %}#854F0B{% else %}#0F6E56{% endif %};"></div>
+        </div>
+        <span class="dc-health-val">{{ h.temperature }} °C</span>
+      </div>
+      <div class="dc-health-row">
+        <span class="dc-health-label">Battery</span>
+        <div class="dc-health-bar-wrap">
+          <div class="dc-health-bar" style="width:{{ h.battery_percentage }}%;background:{% if h.battery_percentage < 20 %}#A32D2D{% else %}#0F6E56{% endif %};"></div>
+        </div>
+        <span class="dc-health-val">{{ h.battery_percentage }}%</span>
+      </div>
+      <div class="dc-health-row">
+        <span class="dc-health-label">RSSI</span>
+        <div class="dc-health-bar-wrap">
+          <div class="dc-health-bar" style="width:80%;background:#185FA5;"></div>
+        </div>
+        <span class="dc-health-val">{{ h.rssi }} dBm</span>
+      </div>
+      <div class="dc-health-row">
+        <span class="dc-health-label">Uptime</span>
+        <span class="dc-health-val" style="min-width:auto;">{{ h.uptime }}</span>
+      </div>
+      <div class="dc-health-row">
+        <span class="dc-health-label">Updated</span>
+        <span class="dc-health-val" style="min-width:auto;">{{ h.updated_at }}</span>
+      </div>
+      {% endwith %}
+      {% else %}
+      <p style="font-size:12px;color:#888;">No health data available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Intervals + Command/OTA -->
+  <div class="dc-two-col" style="margin-top:12px;">
+
+    <div class="dc-card no-mb">
+      <div class="dc-card-title"><i class="ti ti-adjustments-horizontal"></i> Update intervals</div>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="device_id" value="{{ device.device_id }}">
+        <div class="dc-field">
+          <label>Heartbeat interval (s)</label>
+          <input type="number" name="heartbeat_interval" value="{{ device.heartbeat_interval|default:60 }}">
+          <div class="dc-field-hint">How often the device pings the server.</div>
+        </div>
+        <div class="dc-field">
+          <label>Telemetry interval (s)</label>
+          <input type="number" name="telemetry_interval" value="{{ device.telemetry_interval|default:30 }}">
+          <div class="dc-field-hint">How often sensor data is published via MQTT.</div>
+        </div>
+        <div class="dc-card-footer">
+          <button type="reset" class="btn btn-ghost btn-sm">Reset</button>
+          <button type="submit" name="action" value="update_intervals" class="btn btn-primary btn-sm">
+            <i class="ti ti-device-floppy"></i> Update intervals
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="dc-card no-mb">
+      <div class="dc-card-title"><i class="ti ti-terminal-2"></i> Send custom command</div>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="device_id" value="{{ device.device_id }}">
+        <div class="dc-field">
+          <label>Command</label>
+          <div class="dc-cmd-row">
+            <input type="text" class="dc-cmd-input" name="command" placeholder="e.g. ping, restart, status">
+            <button type="submit" name="action" value="custom_command" class="btn btn-primary">
+              <i class="ti ti-send"></i> Send
+            </button>
+          </div>
+          <div class="dc-field-hint">Sends a raw command string to the device over MQTT.</div>
+        </div>
+      </form>
+
+      <div class="dc-inner-title"><i class="ti ti-circuit-board"></i> OTA firmware update</div>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="device_id" value="{{ device.device_id }}">
+        <div class="dc-field">
+          <label>Select firmware version</label>
+          <div class="dc-cmd-row">
+            <select name="firmware_id" style="flex:1;padding:7px 10px;font-size:12px;font-family:'Inter',sans-serif;border:0.5px solid #e5e7eb;border-radius:7px;background:#fff;color:#111;outline:none;">
+              {% for firmware in firmwares %}
+              <option value="{{ firmware.id }}">{{ firmware.version }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" name="action" value="ota_update" class="btn btn-blue">
+              <i class="ti ti-rocket"></i> Deploy
+            </button>
+          </div>
+        </div>
+          <p>
+        <label>Version</label><br>
+        <input type="text" name="version">
+    </p>
+
+    <p>
+        <label>Firmware File (.bin)</label><br>
+        <input type="file" name="firmware_file">
+    </p>
+
+    <p>
+        <label>Release Notes</label><br>
+        <textarea name="release_notes"></textarea>
+    </p>
+
+    <button type="submit">
+        Upload Firmware
+    </button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- Device Actions -->
+  <div class="dc-card" style="margin-top:12px;">
+    <div class="dc-card-title"><i class="ti ti-bolt"></i> Device actions</div>
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="device_id" value="{{ device.device_id }}">
+      <div class="dc-action-grid">
+        <div class="dc-action-card">
+          <div class="dc-action-title">Request device info</div>
+          <div class="dc-action-desc">Ask the device to report its current config, firmware, and status over MQTT.</div>
+          <button type="submit" name="action" value="device_info" class="btn btn-ghost btn-sm">
+            <i class="ti ti-info-circle"></i> Request info
+          </button>
+        </div>
+        <div class="dc-action-card">
+          <div class="dc-action-title">Reboot</div>
+          <div class="dc-action-desc">Sends a reboot command. The device will reconnect within ~30 seconds.</div>
+          <button type="submit" name="action" value="reboot" class="btn btn-ghost btn-sm">
+            <i class="ti ti-refresh"></i> Reboot
+          </button>
+        </div>
+        <div class="dc-action-card danger">
+          <div class="dc-action-title danger">Factory reset</div>
+          <div class="dc-action-desc">Wipes all config and re-registers the device. Cannot be undone.</div>
+          <button type="submit" name="action" value="factory_reset" class="btn btn-danger btn-sm"
+            onclick="return confirm('Factory reset {{ device.device_name }}? This cannot be undone.');">
+            <i class="ti ti-alert-triangle"></i> Factory reset
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Firmware history + Recent commands -->
+  <div class="dc-two-col" style="margin-top:12px;">
+
+    <div class="dc-card no-mb">
+      <div class="dc-card-title"><i class="ti ti-history"></i> Firmware history</div>
+      <table>
+        <thead><tr><th>Version</th><th>Status</th><th>Updated</th></tr></thead>
+        <tbody>
+          {% for dep in firmware_history %}
+          <tr>
+            <td><code>{{ dep.firmware.version }}</code></td>
+            <td>
+              {% if dep.status == "deployed" %}
+                <span class="badge badge-success">Deployed</span>
+              {% elif dep.status == "failed" %}
+                <span class="badge badge-failed">Failed</span>
+              {% else %}
+                <span class="badge badge-offline">{{ dep.status|capfirst }}</span>
+              {% endif %}
+            </td>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">{{ dep.updated_at }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" style="text-align:center;color:#888;padding:1rem;">No firmware history</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="dc-card no-mb">
+      <div class="dc-card-title"><i class="ti ti-terminal"></i> Recent commands</div>
+      <table>
+        <thead><tr><th>Command ID</th><th>Command</th><th>Status</th><th>Time</th></tr></thead>
+        <tbody>
+          {% for cmd in recent_commands %}
+          <tr>
+            <td><code>{{ cmd.command_id|slice:":8" }}</code></td>
+            <td><code>{{ cmd.command }}</code></td>
+            <td>
+              {% if cmd.command_status == "completed" %}
+                <span class="badge badge-success">Completed</span>
+              {% elif cmd.command_status == "pending" %}
+                <span class="badge badge-pending">Pending</span>
+              {% elif cmd.command_status == "received" %}
+                <span class="badge" style="background:#E6F1FB;color:#0C447C;">Received</span>
+              {% else %}
+                <span class="badge badge-failed">Failed</span>
+              {% endif %}
+            </td>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">{{ cmd.timestamp }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align:center;color:#888;padding:1rem;">No commands yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  {% else %}
+  <div style="text-align:center;padding:3rem;color:#888;font-size:13px;">
+    <i class="ti ti-cpu" style="font-size:32px;display:block;margin-bottom:8px;color:#ccc;"></i>
+    Select a device above to view its configuration.
+  </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}

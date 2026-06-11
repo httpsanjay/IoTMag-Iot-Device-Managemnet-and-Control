@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+</head>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .w { font-family: 'Inter', sans-serif; background: #fff; color: #111; }
+
+  /* ── Nav ── */
+  .fm-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 2rem;
+    border-bottom: 0.5px solid #e5e7eb;
+  }
+  .fm-logo {
+    display: flex; align-items: center; gap: 9px;
+    text-decoration: none;
+  }
+  .fm-logo-mark {
+    width: 30px; height: 30px; background: #0F6E56;
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  }
+  .fm-logo-mark i { color: #fff; font-size: 16px; }
+  .fm-logo-text { font-size: 16px; font-weight: 600; color: #111; letter-spacing: -0.3px; }
+  .fm-logo-text span { color: #1D9E75; }
+  .fm-nav-links { display: flex; gap: 4px; list-style: none; }
+  .fm-nav-links a {
+    font-size: 13px; color: #555; text-decoration: none;
+    padding: 6px 12px; border-radius: 6px; transition: background 0.12s;
+  }
+  .fm-nav-links a:hover { background: #f5f5f5; color: #111; }
+  .fm-nav-links .cta { background: #0F6E56; color: #fff !important; }
+  .fm-nav-links .cta:hover { background: #085041; }
+
+  /* ── Hero ── */
+  .fm-hero {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2.5rem; padding: 3.5rem 2rem 2.5rem;
+    align-items: center;
+  }
+  .fm-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 500; color: #085041;
+    background: #E1F5EE; padding: 3px 10px 3px 8px;
+    border-radius: 999px; margin-bottom: 1.25rem;
+  }
+  .fm-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; display: inline-block; }
+  .fm-h1 {
+    font-size: 36px; font-weight: 600; line-height: 1.15;
+    letter-spacing: -0.8px; color: #111; margin-bottom: 0.9rem;
+  }
+  .fm-h1 em { font-style: normal; color: #1D9E75; }
+  .fm-sub {
+    font-size: 14px; line-height: 1.7; color: #555;
+    margin-bottom: 1.75rem; max-width: 400px;
+  }
+  .fm-actions { display: flex; gap: 8px; }
+  .fm-btn {
+    font-size: 13px; font-weight: 500; padding: 8px 18px;
+    border-radius: 7px; text-decoration: none; border: 0.5px solid;
+    display: inline-block; transition: all 0.12s;
+  }
+  .fm-btn-primary { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .fm-btn-primary:hover { background: #085041; border-color: #085041; }
+  .fm-btn-secondary { background: transparent; color: #111; border-color: #ccc; }
+  .fm-btn-secondary:hover { background: #f5f5f5; }
+
+  /* ── Device card (hero right) ── */
+  .fm-device-card {
+    background: #f9fafb; border: 0.5px solid #e5e7eb;
+    border-radius: 14px; padding: 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .fm-dc-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 0.75rem; margin-bottom: 0.75rem;
+    border-bottom: 0.5px solid #e5e7eb;
+  }
+  .fm-dc-title { font-size: 12px; font-weight: 500; color: #111; }
+  .fm-dc-online { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #0F6E56; }
+  .fm-dc-dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; }
+  .fm-dc-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 0; border-bottom: 0.5px solid #f0f0f0;
+    font-size: 11px;
+  }
+  .fm-dc-row:last-child { border-bottom: none; }
+  .fm-dc-label { color: #888; }
+  .fm-dc-bar-wrap { flex: 1; height: 3px; background: #e5e7eb; border-radius: 99px; margin: 0 10px; }
+  .fm-dc-bar { height: 100%; border-radius: 99px; background: #1D9E75; }
+  .fm-dc-val { font-weight: 500; }
+  .fm-ok { color: #1D9E75; }
+  .fm-warn { color: #BA7517; }
+
+  /* ── Stats ── */
+  .fm-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; padding: 0 2rem 2rem;
+  }
+  .fm-stat { background: #f9fafb; border-radius: 10px; padding: 0.9rem 1rem; }
+  .fm-stat-n {
+    font-size: 22px; font-weight: 600; color: #111;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: -0.5px;
+  }
+  .fm-stat-l { font-size: 11px; color: #888; margin-top: 3px; }
+
+  /* ── Features ── */
+  .fm-section-label {
+    padding: 0 2rem 0.75rem;
+    font-size: 11px; font-weight: 500; color: #888;
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  .fm-divider { height: 0.5px; background: #e5e7eb; margin: 0 2rem 1.5rem; }
+  .fm-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px; padding: 0 2rem 3rem;
+  }
+  .fm-card {
+    background: #fff; border: 0.5px solid #e5e7eb;
+    border-radius: 12px; padding: 1.1rem;
+    transition: border-color 0.12s;
+  }
+  .fm-card:hover { border-color: #aaa; }
+  .fm-card-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+  .fm-card h3 { font-size: 13px; font-weight: 500; color: #111; margin-bottom: 4px; }
+  .fm-card p { font-size: 12px; line-height: 1.55; color: #666; }
+</style>
+
+<div class="w">
+
+  <section class="fm-hero">
+    <div>
+      <div class="fm-badge">
+        <span class="fm-badge-dot"></span>
+        IoT device management platform
+      </div>
+      <h1 class="fm-h1">Monitor every device,<br><em>in real time.</em></h1>
+      <p class="fm-sub">
+        IoTMag gives you a centralized command center for your entire IoT fleet —
+        telemetry, heartbeats, remote commands, and alerts, all in one place.
+      </p>
+      <div class="fm-actions">
+        <a href="{% url 'signup' %}" class="fm-btn fm-btn-primary">Connect your first device</a>
+        <a href="#" class="fm-btn fm-btn-secondary">Read the docs</a>
+      </div>
+    </div>
+
+    <div class="fm-device-card">
+      <div class="fm-dc-header">
+        <span class="fm-dc-title">NODE-0x4F2A · ESP32-S3</span>
+        <span class="fm-dc-online"><span class="fm-dc-dot"></span>Online</span>
+      </div>
+      <div class="fm-dc-row">
+        <span class="fm-dc-label">Temperature</span>
+        <div class="fm-dc-bar-wrap"><div class="fm-dc-bar" style="width:68%"></div></div>
+        <span class="fm-dc-val fm-warn">34.2 °C</span>
+      </div>
+      <div class="fm-dc-row">
+        <span class="fm-dc-label">Humidity</span>
+        <div class="fm-dc-bar-wrap"><div class="fm-dc-bar" style="width:61%"></div></div>
+        <span class="fm-dc-val fm-ok">61%</span>
+      </div>
+      <div class="fm-dc-row">
+        <span class="fm-dc-label">RSSI</span>
+        <div class="fm-dc-bar-wrap"><div class="fm-dc-bar" style="width:80%"></div></div>
+        <span class="fm-dc-val fm-ok">−67 dBm</span>
+      </div>
+      <div class="fm-dc-row">
+        <span class="fm-dc-label">Memory</span>
+        <div class="fm-dc-bar-wrap"><div class="fm-dc-bar" style="width:72%;background:#BA7517"></div></div>
+        <span class="fm-dc-val fm-warn">72%</span>
+      </div>
+      <div class="fm-dc-row">
+        <span class="fm-dc-label">Uptime</span>
+        <span class="fm-dc-val" style="color:#888">14d 07h 22m</span>
+      </div>
+      <div class="fm-dc-row">
+        <span class="fm-dc-label">Last seen</span>
+        <span class="fm-dc-val fm-ok">just now</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="fm-stats">
+    <div class="fm-stat"><div class="fm-stat-n">10</div><div class="fm-stat-l">Devices online</div></div>
+    <div class="fm-stat"><div class="fm-stat-n">99.4%</div><div class="fm-stat-l">Fleet uptime (30d)</div></div>
+    <div class="fm-stat"><div class="fm-stat-n">300</div><div class="fm-stat-l">Messages today</div></div>
+    <div class="fm-stat"><div class="fm-stat-n">20ms</div><div class="fm-stat-l">Avg latency</div></div>
+  </div>
+
+  <div class="fm-divider"></div>
+  <div class="fm-section-label">Platform features</div>
+
+  <div class="fm-cards">
+    <div class="fm-card">
+      <div class="fm-card-icon" style="background:#E1F5EE">
+        <i class="ti ti-device-desktop" style="color:#0F6E56;font-size:18px"></i>
+      </div>
+      <h3>Device registry</h3>
+      <p>Securely onboard, authenticate and manage all connected devices.</p>
+    </div>
+    <div class="fm-card">
+      <div class="fm-card-icon" style="background:#E1F5EE">
+        <i class="ti ti-activity" style="color:#0F6E56;font-size:18px"></i>
+      </div>
+      <h3>Heartbeats</h3>
+      <p>Track device availability and detect offline devices instantly.</p>
+    </div>
+    <div class="fm-card">
+      <div class="fm-card-icon" style="background:#E6F1FB">
+        <i class="ti ti-chart-line" style="color:#185FA5;font-size:18px"></i>
+      </div>
+      <h3>Telemetry</h3>
+      <p>Collect sensor readings and monitor performance in real time.</p>
+    </div>
+    <div class="fm-card">
+      <div class="fm-card-icon" style="background:#E6F1FB">
+        <i class="ti ti-terminal-2" style="color:#185FA5;font-size:18px"></i>
+      </div>
+      <h3>Remote commands</h3>
+      <p>Send commands and configuration updates directly to devices.</p>
+    </div>
+    <div class="fm-card">
+      <div class="fm-card-icon" style="background:#FAEEDA">
+        <i class="ti ti-bell-ringing" style="color:#854F0B;font-size:18px"></i>
+      </div>
+      <h3>Alerts</h3>
+      <p>Receive notifications when thresholds are exceeded or devices fail.</p>
+    </div>
+    <div class="fm-card">
+      <div class="fm-card-icon" style="background:#E1F5EE">
+        <i class="ti ti-database" style="color:#0F6E56;font-size:18px"></i>
+      </div>
+      <h3>Data storage</h3>
+      <p>Persist telemetry and historical device information securely.</p>
+    </div>
+    <div class="fm-card">
+      <div class="fm-card-icon" style="background:#EEEDFE">
+        <i class="ti ti-lock" style="color:#534AB7;font-size:18px"></i>
+      </div>
+      <h3>Secure access</h3>
+      <p>Token-based authentication and controlled device access.</p>
+    </div>
+    <div class="fm-card">
+      <div class="fm-card-icon" style="background:#EEEDFE">
+        <i class="ti ti-layout-dashboard" style="color:#534AB7;font-size:18px"></i>
+      </div>
+      <h3>Live dashboard</h3>
+      <p>Visualize device status, telemetry and fleet health from one place.</p>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

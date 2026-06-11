@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .signup-page {
+    min-height: 100vh;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .signup-card {
+    background: #fff;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .signup-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2rem;
+    text-decoration: none;
+  }
+  .signup-logo-mark {
+    width: 28px; height: 28px;
+    background: #0F6E56;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .signup-logo-mark i { color: #fff; font-size: 14px; }
+  .signup-logo-text { font-size: 15px; font-weight: 600; color: #111; letter-spacing: -0.3px; }
+  .signup-logo-text span { color: #1D9E75; }
+
+  .signup-title { font-size: 20px; font-weight: 600; color: #111; letter-spacing: -0.4px; margin-bottom: 4px; }
+  .signup-sub { font-size: 13px; color: #888; margin-bottom: 1.75rem; }
+
+  .signup-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #FCEBEB;
+    border: 0.5px solid #F09595;
+    border-radius: 8px;
+    padding: 9px 12px;
+    margin-bottom: 1rem;
+    font-size: 12px;
+    color: #A32D2D;
+  }
+  .signup-error i { font-size: 14px; flex-shrink: 0; }
+
+  .signup-field { margin-bottom: 1rem; }
+  .signup-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 5px;
+  }
+  .signup-field input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .signup-field input:focus {
+    border-color: #1D9E75;
+    box-shadow: 0 0 0 3px rgba(29,158,117,0.1);
+  }
+  .signup-hint { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+  .signup-submit {
+    width: 100%;
+    padding: 10px;
+    background: #0F6E56;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    margin-top: 0.25rem;
+    transition: background 0.12s;
+  }
+  .signup-submit:hover { background: #085041; }
+
+  .signup-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 1.25rem 0;
+  }
+  .signup-divider-line { flex: 1; height: 0.5px; background: #e5e7eb; }
+  .signup-divider-text { font-size: 11px; color: #aaa; }
+
+  .signup-login-row { text-align: center; font-size: 12px; color: #888; }
+  .signup-login-row a { color: #1D9E75; text-decoration: none; font-weight: 500; }
+  .signup-login-row a:hover { text-decoration: underline; }
+</style>
+
+<div class="signup-page">
+  <div class="signup-card">
+
+    <a href="{% url 'home' %}" class="signup-logo">
+      <div class="signup-logo-mark"><i class="ti ti-cpu"></i></div>
+      <span class="signup-logo-text">IoT<span>Mag</span></span>
+    </a>
+
+    <div class="signup-title">Create your account</div>
+    <div class="signup-sub">Start managing your IoT fleet in minutes</div>
+
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+    {% if error %}
+    <div class="signup-error">
+      <i class="ti ti-alert-circle"></i>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="signup-field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="e.g. sanjay_dev" required>
+        <div class="signup-hint">No spaces allowed.</div>
+      </div>
+
+      <div class="signup-field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+      </div>
+
+      <div class="signup-field">
+        <label for="name">Full name</label>
+        <input type="text" id="name" name="name" placeholder="Sanjay" required>
+      </div>
+
+      <div class="signup-field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required>
+        <div class="signup-hint">At least 8 characters.</div>
+      </div>
+
+      <button type="submit" class="signup-submit">Create account</button>
+    </form>
+
+    <div class="signup-divider">
+      <div class="signup-divider-line"></div>
+      <span class="signup-divider-text">or</span>
+      <div class="signup-divider-line"></div>
+    </div>
+
+    <div class="signup-login-row">
+      Already have an account? <a href="{% url 'login' %}">Sign in</a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

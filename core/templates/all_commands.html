@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f9fafb; }
+
+  /* ── Nav ── */
+  .cmd-nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: #fff; border-bottom: 0.5px solid #e5e7eb; }
+  .cmd-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .cmd-logo-mark { width: 28px; height: 28px; background: #0F6E56; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .cmd-logo-mark i { color: #fff; font-size: 14px; }
+  .cmd-logo-text { font-size: 15px; font-weight: 600; color: #111; letter-spacing: -0.3px; }
+  .cmd-logo-text span { color: #1D9E75; }
+  .cmd-nav-links { display: flex; gap: 4px; list-style: none; }
+  .cmd-nav-links a { font-size: 13px; color: #555; text-decoration: none; padding: 5px 11px; border-radius: 6px; transition: background 0.12s; }
+  .cmd-nav-links a:hover { background: #f5f5f5; color: #111; }
+  .cmd-nav-links a.active { color: #0F6E56; background: #E1F5EE; }
+  .cmd-nav-avatar { width: 30px; height: 30px; background: #0F6E56; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; }
+
+  /* ── Page ── */
+  .cmd-page { padding: 1.5rem; }
+  .cmd-page-title { font-size: 20px; font-weight: 600; color: #111; letter-spacing: -0.4px; margin-bottom: 4px; }
+  .cmd-page-sub { font-size: 13px; color: #888; margin-bottom: 1.25rem; }
+
+  /* ── Stats ── */
+  .cmd-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .cmd-stat { background: #f3f4f6; border-radius: 8px; padding: 0.9rem 1rem; }
+  .cmd-stat-label { font-size: 11px; color: #888; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+  .cmd-stat-label i { font-size: 13px; }
+  .cmd-stat-value { font-size: 22px; font-weight: 600; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.5px; color: #111; }
+
+  /* ── Card ── */
+  .cmd-card { background: #fff; border: 0.5px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; }
+  .cmd-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px; }
+  .cmd-card-title { font-size: 14px; font-weight: 500; color: #111; display: flex; align-items: center; gap: 6px; }
+  .cmd-card-title i { font-size: 16px; color: #0F6E56; }
+
+  /* ── Filters ── */
+  .cmd-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .cmd-filter-select { font-size: 12px; font-family: 'Inter', sans-serif; padding: 5px 10px; border: 0.5px solid #e5e7eb; border-radius: 7px; background: #fff; color: #555; outline: none; cursor: pointer; }
+  .cmd-filter-select:focus { border-color: #1D9E75; }
+  .cmd-search-wrap { position: relative; }
+  .cmd-search-wrap i { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #aaa; pointer-events: none; }
+  .cmd-search-input { font-size: 12px; font-family: 'Inter', sans-serif; padding: 5px 10px 5px 30px; border: 0.5px solid #e5e7eb; border-radius: 7px; background: #fff; color: #111; outline: none; width: 180px; }
+  .cmd-search-input:focus { border-color: #1D9E75; box-shadow: 0 0 0 2px rgba(29,158,117,0.1); }
+
+  /* ── Table ── */
+  .cmd-table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+  th { font-size: 11px; font-weight: 500; color: #888; text-align: left; padding: 7px 10px; border-bottom: 0.5px solid #e5e7eb; white-space: nowrap; }
+  td { padding: 9px 10px; border-bottom: 0.5px solid #f0f0f0; color: #111; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; color: #111; }
+
+  /* ── Badges ── */
+  .cmd-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; }
+  .cmd-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+  .cmd-pending  { background: #FAEEDA; color: #633806; }
+  .cmd-received { background: #E6F1FB; color: #0C447C; }
+  .cmd-completed{ background: #E1F5EE; color: #085041; }
+  .cmd-failed   { background: #FCEBEB; color: #791F1F; }
+
+  /* ── Empty ── */
+  .cmd-empty { text-align: center; padding: 2.5rem; color: #888; font-size: 13px; }
+  .cmd-empty i { font-size: 32px; display: block; margin-bottom: 8px; color: #ccc; }
+</style>
+
+<div class="cmd-page">
+
+  <div class="cmd-page-title">Command log</div>
+  <div class="cmd-page-sub">All commands sent to your devices</div>
+
+  <!-- Stats -->
+  <div class="cmd-stats">
+    <div class="cmd-stat">
+      <div class="cmd-stat-label"><i class="ti ti-terminal-2"></i> Total</div>
+      <div class="cmd-stat-value">{{ commands.count }}</div>
+    </div>
+    <div class="cmd-stat">
+      <div class="cmd-stat-label"><i class="ti ti-circle-check"></i> Completed</div>
+      <div class="cmd-stat-value" style="color:#0F6E56">{{ completed_count }}</div>
+    </div>
+    <div class="cmd-stat">
+      <div class="cmd-stat-label"><i class="ti ti-clock"></i> Pending</div>
+      <div class="cmd-stat-value" style="color:#854F0B">{{ pending_count }}</div>
+    </div>
+    <div class="cmd-stat">
+      <div class="cmd-stat-label"><i class="ti ti-circle-check"></i> Received</div>
+      <div class="cmd-stat-value" style="color:#0F6E56">{{ recieved_count }}</div>
+    </div>
+    <div class="cmd-stat">
+      <div class="cmd-stat-label"><i class="ti ti-alert-circle"></i> Failed</div>
+      <div class="cmd-stat-value" style="color:#A32D2D">{{ failed_count }}</div>
+    </div>
+  </div>
+
+  <!-- Table card -->
+  <div class="cmd-card">
+    <div class="cmd-card-header">
+      <div class="cmd-card-title"><i class="ti ti-history"></i> All commands</div>
+      <div class="cmd-filters">
+        <div class="cmd-search-wrap">
+          <i class="ti ti-search"></i>
+          <input class="cmd-search-input" type="text" placeholder="Search command…" id="cmdSearch" name="search">
+        </div>
+        <select class="cmd-filter-select" id="deviceFilter">
+          <option value="">All devices</option>
+          {% for device in devices %}
+          <option value="{{ device.device_name }}">{{ device.device_name }}</option>
+          {% endfor %}
+        </select>
+        <select class="cmd-filter-select" id="statusFilter">
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="received">Received</option>
+          <option value="completed">Completed</option>
+          <option value="failed">Failed</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="cmd-table-wrap">
+      <table id="cmdTable">
+        <thead>
+          <tr>
+            <th style="width:22%">Command ID</th>
+            <th style="width:18%">Device</th>
+            <th style="width:20%">Command</th>
+            <th style="width:14%">Status</th>
+            <th style="width:26%">Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for command in commands %}
+          <tr
+            data-device="{{ command.device.device_name }}"
+            data-status="{{ command.command_status }}"
+            data-cmd="{{ command.command|default:command.multicommands }}"
+          >
+            <td><code>{{ command.command_id }}</code></td>
+            <td>{{ command.device.device_name }}</td>
+            <td><code>{{ command.command|default:command.multicommands }}</code></td>
+            <td>
+              {% if command.command_status == "pending" %}
+                <span class="cmd-badge cmd-pending">Pending</span>
+              {% elif command.command_status == "received" %}
+                <span class="cmd-badge cmd-received">Received</span>
+              {% elif command.command_status == "completed" %}
+                <span class="cmd-badge cmd-completed">Completed</span>
+              {% else %}
+                <span class="cmd-badge cmd-failed">Failed</span>
+              {% endif %}
+            </td>
+            <td>{{ command.timestamp }}</td>
+          </tr>
+          {% empty %}
+          <tr id="emptyRow">
+            <td colspan="5">
+              <div class="cmd-empty">
+                <i class="ti ti-terminal-2"></i>
+                No commands sent yet
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const searchInput  = document.getElementById('cmdSearch');
+  const deviceFilter = document.getElementById('deviceFilter');
+  const statusFilter = document.getElementById('statusFilter');
+
+  function filterTable() {
+    const search = searchInput.value.toLowerCase();
+    const device = deviceFilter.value.toLowerCase();
+    const status = statusFilter.value.toLowerCase();
+    const rows = document.querySelectorAll('#cmdTable tbody tr:not(#emptyRow)');
+    let visible = 0;
+    rows.forEach(row => {
+      const matchSearch = !search || row.dataset.cmd?.toLowerCase().includes(search);
+      const matchDevice = !device || row.dataset.device?.toLowerCase() === device;
+      const matchStatus = !status || row.dataset.status?.toLowerCase() === status;
+      row.style.display = (matchSearch && matchDevice && matchStatus) ? '' : 'none';
+      if (matchSearch && matchDevice && matchStatus) visible++;
+    });
+  }
+
+  searchInput.addEventListener('input', filterTable);
+  deviceFilter.addEventListener('change', filterTable);
+  statusFilter.addEventListener('change', filterTable);
+</script>
+
+{% endblock %}

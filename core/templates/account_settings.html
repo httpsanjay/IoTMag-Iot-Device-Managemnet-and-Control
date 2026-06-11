@@ -1,0 +1,483 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<head>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet"
+  />
+
+</head>
+
+<style>
+  @import url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css")
+  @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap");
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: #f9fafb;
+    font-family: "Inter", sans-serif;
+  }
+
+
+
+  /* ── Page ── */
+  .settings-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+  }
+  .settings-page-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.4px;
+    margin-bottom: 4px;
+  }
+  .settings-page-sub {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 2rem;
+  }
+
+  /* ── Sections ── */
+  .settings-section {
+    background: #fff;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .settings-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 0.5px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .settings-section-title i {
+    font-size: 15px;
+    color: #0f6e56;
+  }
+  .settings-section-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid #f0f0f0;
+  }
+
+  /* ── Fields ── */
+  .settings-field {
+    margin-bottom: 1rem;
+  }
+  .settings-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 5px;
+  }
+  .settings-field input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: "Inter", sans-serif;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    outline: none;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .settings-field input:focus {
+    border-color: #1d9e75;
+    box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.1);
+  }
+  .settings-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .settings-hint {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 4px;
+  }
+
+  .settings-pw-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 1.5rem 0 1rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid #f0f0f0;
+  }
+  .settings-pw-header i {
+    font-size: 15px;
+    color: #0f6e56;
+  }
+
+  /* ── Error ── */
+  .settings-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fcebeb;
+    border: 0.5px solid #f09595;
+    border-radius: 8px;
+    padding: 9px 12px;
+    margin-bottom: 1.25rem;
+    font-size: 12px;
+    color: #a32d2d;
+  }
+  .settings-error i {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* ── Buttons ── */
+  .settings-btn {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: "Inter", sans-serif;
+    transition: all 0.12s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .settings-btn-primary {
+    background: #0f6e56;
+    color: #fff;
+  }
+  .settings-btn-primary:hover {
+    background: #085041;
+  }
+  .settings-btn-ghost {
+    background: transparent;
+    color: #555;
+    border: 0.5px solid #e5e7eb;
+  }
+  .settings-btn-ghost:hover {
+    background: #f5f5f5;
+  }
+  .settings-btn-danger {
+    background: #fff;
+    color: #a32d2d;
+    border: 0.5px solid #f09595;
+  }
+  .settings-btn-danger:hover {
+    background: #fcebeb;
+  }
+
+  /* ── Device stat ── */
+  .settings-device-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 10px;
+  }
+  .settings-device-stat-icon {
+    width: 36px;
+    height: 36px;
+    background: #e1f5ee;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .settings-device-stat-icon i {
+    color: #0f6e56;
+    font-size: 18px;
+  }
+  .settings-device-stat-n {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111;
+    font-family: "JetBrains Mono", monospace;
+  }
+  .settings-device-stat-l {
+    font-size: 12px;
+    color: #888;
+  }
+
+  /* ── Danger zone ── */
+  .settings-danger {
+    background: #fff;
+    border: 0.5px solid #f09595;
+    border-radius: 14px;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .settings-danger-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #a32d2d;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .settings-danger-title i {
+    font-size: 15px;
+  }
+  .settings-danger-sub {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+  }
+
+  .settings-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: #fff;
+    border-bottom: 0.5px solid #e5e7eb;
+    position: relative;
+  }
+  .settings-nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+  .settings-nav-logo-mark {
+    width: 28px;
+    height: 28px;
+    background: #0f6e56;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .settings-nav-logo-mark i {
+    color: #fff;
+    font-size: 14px;
+  }
+  .settings-nav-logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.3px;
+  }
+  .settings-nav-logo-text span {
+    color: #1d9e75;
+  }
+  .settings-nav-links {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+    align-items: center;
+  }
+  .settings-nav-links a {
+    font-size: 13px;
+    color: #555;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.12s;
+  }
+  .settings-nav-links a:hover {
+    background: #f5f5f5;
+    color: #111;
+  }
+  .settings-nav-links a.active {
+    color: #0f6e56;
+    background: #e1f5ee;
+  }
+
+  /* Avatar + dropdown */
+  .nav-avatar-wrap {
+    position: relative;
+  }
+  .settings-nav-avatar {
+    width: 30px;
+    height: 30px;
+    background: #0f6e56;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.12s;
+  }
+  .settings-nav-avatar:hover {
+    opacity: 0.85;
+  }
+
+  
+</style>
+
+
+
+<!-- Page -->
+<div class="settings-page">
+  <div class="settings-page-title">Account Settings</div>
+  <div class="settings-page-sub">
+    Manage your profile, credentials, and account preferences
+  </div>
+
+  <!-- Profile + Password -->
+  <div class="settings-section">
+    <div class="settings-section-title"><i class="ti ti-user"></i> Profile</div>
+
+    {% if error %}
+    <div class="settings-error">
+      <i class="ti ti-alert-circle"></i>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="settings-field">
+        <label for="id_username">Username</label>
+        <input
+          type="text"
+          id="id_username"
+          name="username"
+          value="{{ user.username }}"
+          required
+        />
+        <div class="settings-hint">No spaces allowed.</div>
+      </div>
+
+      <div class="settings-field">
+        <label for="id_email">Email address</label>
+        <input
+          type="email"
+          id="id_email"
+          name="email"
+          value="{{ user.email }}"
+          required
+        />
+      </div>
+
+      <div class="settings-field">
+        <label for="name">Full name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value="{{ user.first_name }}"
+          required
+        />
+      </div>
+
+      <div class="settings-pw-header">
+        <i class="ti ti-lock"></i> Change password
+      </div>
+
+      <div class="settings-field-row">
+        <div class="settings-field">
+          <label for="id_password">New password</label>
+          <input
+            type="password"
+            id="id_password"
+            name="password"
+            placeholder="••••••••"
+          />
+        </div>
+        <div class="settings-field">
+          <label for="id_password_confirm">Confirm password</label>
+          <input
+            type="password"
+            id="id_password_confirm"
+            name="password_confirm"
+            placeholder="••••••••"
+          />
+        </div>
+      </div>
+      <div class="settings-hint">
+        Leave blank to keep your current password.
+      </div>
+
+      <div class="settings-section-footer">
+        <a href="{% url 'home' %}" class="settings-btn settings-btn-ghost"
+          >Cancel</a
+        >
+        <button type="submit" class="settings-btn settings-btn-primary">
+          <i class="ti ti-device-floppy"></i> Save changes
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Devices -->
+  <div class="settings-section">
+    <div class="settings-section-title"><i class="ti ti-cpu"></i> Devices</div>
+    <div class="settings-device-stat">
+      <div class="settings-device-stat-icon"><i class="ti ti-router"></i></div>
+      <div>
+        <div class="settings-device-stat-n">{{ devices.count }}</div>
+        <div class="settings-device-stat-l">
+          Device{{ devices.count|pluralize }} registered to your account
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="settings-danger">
+    <div class="settings-danger-title">
+      <i class="ti ti-alert-triangle"></i> Danger zone
+    </div>
+    <div class="settings-danger-sub">
+      Deleting your account is permanent and cannot be undone. All your devices
+      and data will be removed immediately.
+    </div>
+    <form method="POST" action="{% url 'delete_account' %}">
+      {% csrf_token %}
+      <button
+        type="submit"
+        class="settings-btn settings-btn-danger"
+        onclick="
+          return confirm(
+            'Are you sure you want to delete your account? This action cannot be undone.',
+          );
+        "
+      >
+        <i class="ti ti-trash"></i> Delete account
+      </button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

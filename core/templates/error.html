@@ -1,0 +1,131 @@
+
+{% block content %}
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error {{ status_code }} — IoTMag</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #111;
+    }
+
+
+    /* ── Page ── */
+    .err-page {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+    .err-wrap { text-align: center; max-width: 480px; }
+
+    /* ── Code + icon ── */
+    .err-icon-wrap {
+      position: relative;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .err-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 96px; font-weight: 700;
+      color: #e5e7eb;
+      letter-spacing: -4px; line-height: 1;
+      user-select: none;
+    }
+    .err-icon {
+      position: absolute;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 3px solid #f9fafb;
+    }
+    .err-icon i { font-size: 26px; }
+
+    /* ── Text ── */
+    .err-title { font-size: 22px; font-weight: 600; color: #111; letter-spacing: -0.4px; margin-bottom: 8px; }
+    .err-message { font-size: 14px; color: #888; line-height: 1.7; margin-bottom: 2rem; }
+
+    /* ── Actions ── */
+    .err-actions { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      font-size: 13px; font-weight: 500; padding: 8px 18px;
+      border-radius: 8px; border: 0.5px solid; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.12s;
+      display: inline-flex; align-items: center; gap: 6px;
+      text-decoration: none;
+    }
+    .btn-primary { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+    .btn-primary:hover { background: #085041; }
+    .btn-ghost { background: #fff; color: #555; border-color: #e5e7eb; }
+    .btn-ghost:hover { background: #f5f5f5; }
+
+    /* ── Footer links ── */
+    .err-footer {
+      margin-top: 2.5rem; padding-top: 1.5rem;
+      border-top: 0.5px solid #e5e7eb;
+      display: flex; justify-content: center; gap: 24px;
+    }
+    .err-footer a { font-size: 12px; color: #aaa; text-decoration: none; }
+    .err-footer a:hover { color: #555; }
+  </style>
+</head>
+
+
+
+<div class="err-page">
+  <div class="err-wrap">
+
+    <div class="err-icon-wrap">
+      <div class="err-code">{{ status_code }}</div>
+      <div class="err-icon" style="
+        {% if status_code == 404 %}background:#FEF3C7;
+        {% elif status_code == 403 %}background:#FAEEDA;
+        {% elif status_code == 500 %}background:#FCEBEB;
+        {% else %}background:#E6F1FB;{% endif %}
+      ">
+        <i class="
+          {% if status_code == 404 %}ti ti-map-pin-off
+          {% elif status_code == 403 %}ti ti-lock
+          {% elif status_code == 500 %}ti ti-server-off
+          {% elif status_code == 400 %}ti ti-alert-circle
+          {% else %}ti ti-bug{% endif %}
+        " style="
+          {% if status_code == 404 %}color:#92400E;
+          {% elif status_code == 403 %}color:#854F0B;
+          {% elif status_code == 500 %}color:#A32D2D;
+          {% else %}color:#185FA5;{% endif %}
+        "></i>
+      </div>
+    </div>
+
+    <div class="err-title">{{ title }}</div>
+    <div class="err-message">{{ message }}</div>
+
+    <div class="err-actions">
+      <a href="/" class="btn btn-primary"><i class="ti ti-home"></i> Return home</a>
+      {%  if user.is_authenticated %}
+        <a href="/dashboard/" class="btn btn-ghost"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+      {% endif %}
+    </div>
+
+    <div class="err-footer">
+      <a href="#">Support</a>
+      <a href="#">Documentation</a>
+      <a href="#">Status</a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

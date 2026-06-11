@@ -1,0 +1,9 @@
+Django==6.0.1
+django-environ==0.13.0
+django-redis==6.0.0
+djangorestframework==3.16.1
+drf-spectacular==0.29.0
+psycopg2-binary==2.9.11
+redis==8.0.0
+httpx==0.28.1
+gunicorn==25.1.0

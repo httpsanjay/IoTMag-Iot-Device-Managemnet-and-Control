@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f9fafb; }
+
+  /* ── Nav ── */
+  .tl-nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: #fff; border-bottom: 0.5px solid #e5e7eb; }
+  .tl-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .tl-logo-mark { width: 28px; height: 28px; background: #0F6E56; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .tl-logo-mark i { color: #fff; font-size: 14px; }
+  .tl-logo-text { font-size: 15px; font-weight: 600; color: #111; letter-spacing: -0.3px; }
+  .tl-logo-text span { color: #1D9E75; }
+  .tl-nav-links { display: flex; gap: 4px; list-style: none; }
+  .tl-nav-links a { font-size: 13px; color: #555; text-decoration: none; padding: 5px 11px; border-radius: 6px; transition: background 0.12s; }
+  .tl-nav-links a:hover { background: #f5f5f5; color: #111; }
+  .tl-nav-links a.active { color: #0F6E56; background: #E1F5EE; }
+  .tl-nav-avatar { width: 30px; height: 30px; background: #0F6E56; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; }
+
+  /* ── Page ── */
+  .tl-page { padding: 1.5rem; }
+  .tl-page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; gap: 1rem; flex-wrap: wrap; }
+  .tl-page-title { font-size: 20px; font-weight: 600; color: #111; letter-spacing: -0.4px; }
+  .tl-page-sub { font-size: 13px; color: #888; margin-top: 2px; }
+  .btn { font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 7px; border: 0.5px solid; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.12s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
+  .btn-primary { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .btn-primary:hover { background: #085041; }
+  .btn-ghost { background: #fff; color: #555; border-color: #e5e7eb; }
+  .btn-ghost:hover { background: #f5f5f5; }
+
+  /* ── Device bar ── */
+  .tl-device-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .tl-dbar { background: #fff; border: 0.5px solid #e5e7eb; border-radius: 10px; padding: 0.85rem 1rem; }
+  .tl-dbar-label { font-size: 11px; color: #888; margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
+  .tl-dbar-label i { font-size: 13px; }
+  .tl-dbar-value { font-size: 13px; font-weight: 500; color: #111; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Status badges ── */
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.7; }
+  .badge-online  { background: #E1F5EE; color: #085041; }
+  .badge-offline { background: #f3f4f6; color: #888; }
+  .badge-error   { background: #FCEBEB; color: #791F1F; }
+  .badge-warning { background: #FAEEDA; color: #633806; }
+
+  /* ── Card ── */
+  .tl-card { background: #fff; border: 0.5px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; }
+  .tl-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .tl-card-title { font-size: 14px; font-weight: 500; color: #111; display: flex; align-items: center; gap: 6px; }
+  .tl-card-title i { font-size: 16px; color: #0F6E56; }
+
+  /* ── Latest readings ── */
+  .tl-readings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .tl-reading { background: #f9fafb; border: 0.5px solid #e5e7eb; border-radius: 10px; padding: 0.85rem 1rem; }
+  .tl-reading-key { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .tl-reading-val { font-size: 18px; font-weight: 600; color: #111; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.5px; }
+  .tl-reading-unit { font-size: 11px; color: #aaa; margin-top: 1px; }
+
+  /* ── Chart ── */
+  .tl-chart-wrap { position: relative; padding-left: 32px; }
+  .tl-chart-yaxis { position: absolute; left: 0; top: 0; bottom: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+  .tl-chart-yaxis span { font-size: 9px; color: #bbb; }
+  .tl-chart-area { height: 160px; display: flex; align-items: flex-end; gap: 3px; padding: 0 4px; }
+  .tl-bar { flex: 1; border-radius: 4px 4px 0 0; background: linear-gradient(to top, #0F6E56, #1D9E75); position: relative; cursor: pointer; transition: opacity 0.12s; }
+  .tl-bar:hover { opacity: 0.75; }
+  .tl-bar-tip { position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%); background: #111; color: #fff; font-size: 10px; padding: 3px 7px; border-radius: 4px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.1s; z-index: 10; }
+  .tl-bar:hover .tl-bar-tip { opacity: 1; }
+  .tl-chart-labels { display: flex; gap: 3px; padding: 4px 4px 0; }
+  .tl-chart-labels span { flex: 1; font-size: 9px; color: #aaa; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ── Table ── */
+  .tl-tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { font-size: 11px; font-weight: 500; color: #888; text-align: left; padding: 7px 10px; border-bottom: 0.5px solid #e5e7eb; }
+  td { padding: 8px 10px; border-bottom: 0.5px solid #f0f0f0; color: #111; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; color: #111; display: inline-block; max-width: 480px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .tl-device-select { font-size: 13px; font-family: 'Inter', sans-serif; padding: 6px 12px; border: 0.5px solid #e5e7eb; border-radius: 7px; background: #fff; color: #111; outline: none; }
+  .tl-device-select:focus { border-color: #1D9E75; }
+
+  .tl-empty { text-align: center; padding: 2rem; color: #888; font-size: 13px; }
+  .tl-empty i { font-size: 28px; display: block; margin-bottom: 8px; color: #ccc; }
+</style>
+
+
+
+<div class="tl-page">
+
+  <!-- Header + device picker -->
+  <div class="tl-page-header">
+    <div>
+      <div class="tl-page-title">Telemetry</div>
+      <div class="tl-page-sub">
+        Sensor data stream
+        {% if device %} for <strong>{{ device.device_name }}</strong>{% endif %}
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <form method="GET" action="{% url 'telemetry_page' %}" style="display:flex;gap:8px;align-items:center;">
+        <select class="tl-device-select" name="device_id">
+          {% for d in devices %}
+          <option value="{{ d.device_id }}" {% if d.device_id == device.device_id %}selected{% endif %}>
+            {{ d.device_name }}
+          </option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Load</button>
+      </form>
+      <a href="{% url 'dashboard' %}" class="btn btn-ghost"><i class="ti ti-arrow-left"></i> Dashboard</a>
+    </div>
+  </div>
+
+  {% if device %}
+
+  <!-- Device info bar -->
+  <div class="tl-device-bar">
+    <div class="tl-dbar">
+      <div class="tl-dbar-label"><i class="ti ti-cpu"></i> Device</div>
+      <div class="tl-dbar-value" style="font-family:'Inter',sans-serif;">{{ device.device_name }}</div>
+    </div>
+    <div class="tl-dbar">
+      <div class="tl-dbar-label"><i class="ti ti-fingerprint"></i> Device ID</div>
+      <div class="tl-dbar-value" style="font-size:11px;">{{ device.device_id }}</div>
+    </div>
+    <div class="tl-dbar">
+      <div class="tl-dbar-label"><i class="ti ti-wifi"></i> Status</div>
+      <div style="margin-top:3px;">
+
+        {% if device.status == 'online' %}
+          <span class="badge badge-online"><span class="badge-dot"></span>Online</span>
+        {% elif device.status == "error" %}
+          <span class="badge badge-error"><span class="badge-dot"></span>Error</span>
+        {% elif device.status == "warning" %}
+          <span class="badge badge-warning"><span class="badge-dot"></span>Warning</span>
+        {% else %}
+          <span class="badge badge-offline"><span class="badge-dot"></span>Offline</span>
+        {% endif %}
+
+      </div>
+    </div>
+    <div class="tl-dbar">
+      <div class="tl-dbar-label"><i class="ti ti-clock"></i> Last seen</div>
+      <div class="tl-dbar-value" style="font-size:11px;">{{ device.last_seen|default:"—" }}</div>
+    </div>
+    <div class="tl-dbar">
+      <div class="tl-dbar-label"><i class="ti ti-hourglass"></i> Uptime</div>
+      <div class="tl-dbar-value" style="font-size:11px;">{{ device.uptime }}s</div>
+    </div>
+  </div>
+
+  {% if telemetry_list %}
+
+  <!-- Latest readings — parsed from most recent Telemetry.data JSONField -->
+  <div class="tl-card">
+    <div class="tl-card-header">
+      <div class="tl-card-title"><i class="ti ti-dashboard"></i> Latest readings</div>
+      <span style="font-size:11px;color:#aaa;">From most recent telemetry entry · {{ telemetry_list.0.timestamp }}</span>
+    </div>
+    <div class="tl-readings-grid">
+      {% for key, value in telemetry_list.0.data.items %}
+      <div class="tl-reading">
+        <div class="tl-reading-key">{{ key }}</div>
+        <div class="tl-reading-val">{{ value }}</div>
+        <div class="tl-reading-unit">
+          {% if "temp" in key %}°C
+          {% elif "humidity" in key %}%
+          {% elif "pressure" in key %}hPa
+          {% elif "level" in key %}%
+          {% elif "battery" in key %}%
+          {% elif "rssi" in key %}dBm
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Chart (rendered from JSON data passed to template) -->
+  <div class="tl-card">
+    <div class="tl-card-header">
+      <div class="tl-card-title"><i class="ti ti-chart-line"></i> Telemetry chart</div>
+      <span style="font-size:11px;color:#aaa;">Last {{ telemetry_list|length }} readings</span>
+    </div>
+    <div class="tl-chart-wrap">
+      <div class="tl-chart-yaxis" id="tlYAxis"></div>
+      <div class="tl-chart-area" id="tlChartArea"></div>
+      <div class="tl-chart-labels" id="tlChartLabels"></div>
+    </div>
+  </div>
+
+  <!-- Raw telemetry log -->
+  <div class="tl-card">
+    <div class="tl-card-header">
+      <div class="tl-card-title"><i class="ti ti-database"></i> Raw telemetry log</div>
+      <span style="font-size:11px;color:#aaa;">{{ telemetry_list|length }} entries</span>
+    </div>
+    <div class="tl-tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:6%">#</th>
+            <th style="width:30%">Timestamp</th>
+            <th>Data (JSON)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in telemetry_list %}
+          <tr>
+            <td style="color:#aaa;font-family:'JetBrains Mono',monospace;">{{ forloop.counter }}</td>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">{{ entry.timestamp }}</td>
+            <td><code>{{ entry.data }}</code></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="tl-card">
+    <div class="tl-empty">
+      <i class="ti ti-chart-line"></i>
+      No telemetry data yet for {{ device.device_name }}.
+    </div>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="tl-card">
+    <div class="tl-empty">
+      <i class="ti ti-cpu"></i>
+      Select a device above to view telemetry.
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Chart rendering from Django template data -->
+<script>
+  const telemetryData = {{ telemetry_json|safe }};
+  // telemetry_json should be passed from view as:
+  // json.dumps([{"timestamp": str(t.timestamp), "data": t.data} for t in telemetry_list])
+
+  if (telemetryData && telemetryData.length > 0) {
+    // Find a numeric key to chart (first numeric field in data)
+    const firstEntry = telemetryData[0].data;
+    const chartKey = Object.keys(firstEntry).find(k => typeof firstEntry[k] === 'number') || null;
+
+    if (chartKey) {
+      const values = telemetryData.map(t => t.data[chartKey] ?? 0);
+      const min = Math.min(...values) * 0.95;
+      const max = Math.max(...values) * 1.05;
+      const range = max - min || 1;
+
+      // Y-axis
+      const yAxis = document.getElementById('tlYAxis');
+      if (yAxis) {
+        [max, (max+min)/2, min].forEach(v => {
+          const s = document.createElement('span');
+          s.textContent = v.toFixed(1);
+          yAxis.appendChild(s);
+        });
+      }
+
+      // Bars
+      const chartArea = document.getElementById('tlChartArea');
+      const chartLabels = document.getElementById('tlChartLabels');
+      if (chartArea) {
+        [...telemetryData].reverse().forEach(t => {
+          const val = t.data[chartKey] ?? 0;
+          const pct = ((val - min) / range) * 100;
+          const bar = document.createElement('div');
+          bar.className = 'tl-bar';
+          bar.style.height = pct + '%';
+          bar.innerHTML = `<div class="tl-bar-tip">${chartKey}: ${val}<br>${t.timestamp.slice(11,16)}</div>`;
+          chartArea.appendChild(bar);
+
+          if (chartLabels) {
+            const lbl = document.createElement('span');
+            lbl.textContent = t.timestamp.slice(11, 16);
+            chartLabels.appendChild(lbl);
+          }
+        });
+      }
+    }
+  }
+</script>
+
+{% endblock %}
