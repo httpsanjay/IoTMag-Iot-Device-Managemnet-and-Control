@@ -92,6 +92,10 @@ def signup(request):
     return render(request, "signup.html")
 
 
+def api_doc_page(request):
+    return render(request, "iotmag_api_docs.html")
+
+
 @login_required
 def dashboard(request):
 

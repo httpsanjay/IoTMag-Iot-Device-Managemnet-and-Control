@@ -8,6 +8,7 @@ urlpatterns =[
     path('signup/', views.signup, name='signup'),
     path('logout/', views.logout_view, name='logout'),
     path('delete_account/', views.delete_account, name='delete_account'),
+    path('iotmag_api_docs/', views.api_doc_page, name='api_doc_page'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('dashboard/account_settings/', views.account_settings, name='account_settings'),
     path('dashboard/delete_device/', views.delete_device, name='delete_device'),

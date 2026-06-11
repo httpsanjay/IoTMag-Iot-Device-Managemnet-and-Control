@@ -1,0 +1,543 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* All colors use hardcoded values matching base.html — no CSS variables */
+  .wrap { display: flex; gap: 0; min-height: 600px; font-family: 'Inter', sans-serif; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 200px; flex-shrink: 0;
+    border-right: 0.5px solid #e5e7eb;
+    padding: 1.25rem 0;
+    position: sticky; top: 0; height: fit-content;
+  }
+  .sidebar h3 {
+    font-size: 10px; font-weight: 600; color: #9ca3af;
+    letter-spacing: .1em; text-transform: uppercase;
+    padding: 0 1rem; margin: 0 0 .35rem;
+  }
+  .sidebar-group { margin-bottom: 1.5rem; }
+  .nav-item {
+    display: block; padding: 5px 1rem;
+    font-size: 13px; color: #555; cursor: pointer;
+    border-left: 2px solid transparent; text-decoration: none; line-height: 1.4;
+  }
+  .nav-item:hover { color: #111; background: #f9fafb; }
+  .nav-item.active { color: #111; font-weight: 600; border-left: 2px solid #7F77DD; background: #f5f4ff; }
+
+  /* ── Content area ── */
+  .content { flex: 1; padding: 2rem 2.5rem; max-width: 740px; }
+  .endpoint { display: none; animation: fadeIn .15s ease; }
+  .endpoint.visible { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Endpoint header ── */
+  .ep-header { margin-bottom: 1.5rem; }
+  .badges { display: flex; align-items: center; gap: 6px; margin-bottom: .75rem; }
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 5px;
+    font-size: 11px; font-weight: 600; letter-spacing: .03em;
+  }
+  .badge.post { background: #dbeafe; color: #1e40af; }
+  .badge.get  { background: #dcfce7; color: #166534; }
+  .badge.device    { background: #ede9fe; color: #4c1d95; }
+  .badge.dashboard { background: #fee2e2; color: #991b1b; }
+
+  .ep-title { font-size: 20px; font-weight: 600; color: #111; margin-bottom: .6rem; line-height: 1.3; }
+
+  .path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; padding: 3px 8px;
+    background: #f3f0ff; border: 0.5px solid #c4b5fd;
+    border-radius: 5px; color: #5b21b6;
+    display: inline-block; margin-bottom: .75rem;
+  }
+  .ep-desc { font-size: 14px; color: #555; line-height: 1.65; margin: 0; }
+  .ep-desc code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: #f3f4f6; padding: 1px 5px; border-radius: 3px; color: #374151; }
+
+  /* ── Section label ── */
+  .section-label {
+    font-size: 10px; font-weight: 600; color: #9ca3af;
+    text-transform: uppercase; letter-spacing: .1em;
+    margin: 1.5rem 0 .6rem;
+  }
+
+  /* ── Field table ── */
+  .field-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .field-table th {
+    text-align: left; padding: 8px 12px;
+    background: #f9fafb; color: #6b7280;
+    font-weight: 500; font-size: 11px; letter-spacing: .03em;
+    border: 1px solid #e5e7eb;
+  }
+  .field-table td {
+    padding: 9px 12px; border: 1px solid #e5e7eb;
+    color: #111; vertical-align: top; font-size: 13px;
+    background: #fff;
+  }
+  .field-table td.fname {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: #5b21b6; white-space: nowrap;
+    background: #faf9ff;
+  }
+  .field-table td.ftype { color: #9ca3af; font-size: 12px; white-space: nowrap; }
+  .req-tag { padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+  .req-tag.required  { background: #fee2e2; color: #991b1b; }
+  .req-tag.optional  { background: #f3f4f6; color: #6b7280; border: 0.5px solid #e5e7eb; }
+
+  /* ── Code block ── */
+  pre.code-block {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.75;
+    color: #111;
+    overflow-x: auto;
+    margin: 0;
+    white-space: pre;
+  }
+
+  /* ── Response tabs (pill style) ── */
+  .resp-tabs { display: flex; gap: 6px; margin-bottom: .6rem; margin-top: .25rem; }
+  .rtab {
+    padding: 5px 14px; font-size: 12px; font-weight: 500;
+    border: 1px solid #e5e7eb; border-radius: 20px;
+    cursor: pointer; background: #fff; color: #555;
+    font-family: 'Inter', sans-serif;
+    transition: all .12s;
+  }
+  .rtab:hover { color: #111; border-color: #9ca3af; }
+  .rtab.active { background: #ede9fe; color: #5b21b6; border-color: #a78bfa; font-weight: 600; }
+
+  .resp-block { display: none; }
+  .resp-block.visible { display: block; }
+
+  /* ── Note / info box ── */
+  .note {
+    background: #fffbeb; border: 1px solid #fcd34d;
+    border-radius: 7px; padding: .75rem 1rem;
+    font-size: 13px; color: #92400e; margin-top: 1.25rem;
+    line-height: 1.6; display: flex; gap: .5rem; align-items: flex-start;
+  }
+  .note-icon { flex-shrink: 0; margin-top: 1px; }
+  .note code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,.07); padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  .note.auth-note { background: #ede9fe; border-color: #a78bfa; color: #4c1d95; }
+  .note.auth-note code { background: rgba(91,33,182,.1); }
+
+  /* ── Status pill grid ── */
+  .status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-top: .25rem; }
+  .status-pill { border-radius: 7px; padding: 9px 12px; border: 1px solid #e5e7eb; }
+  .status-pill .val { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+  .status-pill .label { font-size: 11px; color: #6b7280; }
+  .s-online    { background: #dcfce7; border-color: #86efac; } .s-online .val    { color: #166534; }
+  .s-offline   { background: #f3f4f6; border-color: #d1d5db; } .s-offline .val   { color: #374151; }
+  .s-error     { background: #fee2e2; border-color: #fca5a5; } .s-error .val     { color: #991b1b; }
+  .s-warning   { background: #fffbeb; border-color: #fcd34d; } .s-warning .val   { color: #92400e; }
+  .s-critical  { background: #fff1f2; border-color: #fda4af; } .s-critical .val  { color: #9f1239; }
+  .s-unknown   { background: #f9fafb; border-color: #e5e7eb; } .s-unknown .val   { color: #6b7280; }
+  .f-pending      { background: #dbeafe; border-color: #93c5fd; } .f-pending .val      { color: #1e40af; }
+  .f-downloading  { background: #ede9fe; border-color: #c4b5fd; } .f-downloading .val  { color: #5b21b6; }
+  .f-installing   { background: #fffbeb; border-color: #fcd34d; } .f-installing .val   { color: #92400e; }
+  .f-success      { background: #dcfce7; border-color: #86efac; } .f-success .val      { color: #166534; }
+  .f-failed       { background: #fee2e2; border-color: #fca5a5; } .f-failed .val       { color: #991b1b; }
+</style>
+
+<div class="wrap">
+<nav class="sidebar">
+  <div class="sidebar-group">
+    <h3>Auth</h3>
+    <a class="nav-item active" onclick="show('device-verify',this)">Device Verify</a>
+  </div>
+  <div class="sidebar-group">
+    <h3>Data</h3>
+    <a class="nav-item" onclick="show('telemetry',this)">Telemetry</a>
+    <a class="nav-item" onclick="show('heartbeat',this)">Heartbeat</a>
+    <a class="nav-item" onclick="show('health',this)">Device Health</a>
+  </div>
+  <div class="sidebar-group">
+    <h3>Firmware</h3>
+    <a class="nav-item" onclick="show('deploy',this)">Deploy Firmware</a>
+    <a class="nav-item" onclick="show('fw-status',this)">Firmware Status</a>
+  </div>
+  <div class="sidebar-group">
+    <h3>Commands</h3>
+    <a class="nav-item" onclick="show('cmd-create',this)">Create Command</a>
+    <a class="nav-item" onclick="show('cmd-get',this)">Get Commands</a>
+    <a class="nav-item" onclick="show('cmd-mark',this)">Mark Complete</a>
+    <a class="nav-item" onclick="show('cmd-status',this)">Command Status</a>
+  </div>
+  <div class="sidebar-group">
+    <h3>Reference</h3>
+    <a class="nav-item" onclick="show('enums',this)">Status Values</a>
+  </div>
+</nav>
+
+<div class="content">
+
+<!-- DEVICE VERIFY -->
+<div class="endpoint visible" id="ep-device-verify">
+  <div class="ep-header">
+    <div class="badges"><span class="badge post">POST</span><span class="badge device">Device</span></div>
+    <div class="ep-title">Verify a device and get an access token</div>
+    <code class="path">/device/verify/</code>
+    <p class="ep-desc">The device sends its ID and secret to prove who it is. If valid, the server gives back a fresh access token that must be used in all future requests.</p>
+  </div>
+  <div class="section-label">Request Body</div>
+  <table class="field-table">
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
+    <tr><td class="fname">device_id</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>The unique ID assigned to your device</td></tr>
+    <tr><td class="fname">device_secret</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>The secret password set for your device</td></tr>
+  </table>
+  <div class="section-label">Example Request</div>
+  <pre class="code-block">{ "device_id": "esp32-001", "device_secret": "my-secret-key" }</pre>
+  <div class="section-label">Responses</div>
+  <div class="resp-tabs">
+    <div class="rtab active" onclick="switchResp(this,'dv','success')">Success</div>
+    <div class="rtab" onclick="switchResp(this,'dv','fail')">Wrong credentials</div>
+  </div>
+  <div class="resp-block visible" id="dv-success">
+    <pre class="code-block">{ "success": true, "message": "Device verified successfully", "access_token": "a3f9b2c1..." }</pre>
+  </div>
+  <div class="resp-block" id="dv-fail">
+    <pre class="code-block">{ "success": false, "message": "Invalid device credentials" }</pre>
+  </div>
+  <div class="note"><span class="note-icon">ⓘ</span><span>Save the <code>access_token</code> you receive. You'll need it in the headers of every other request.</span></div>
+</div>
+
+<!-- TELEMETRY -->
+<div class="endpoint" id="ep-telemetry">
+  <div class="ep-header">
+    <div class="badges"><span class="badge post">POST</span><span class="badge device">Device</span></div>
+    <div class="ep-title">Send sensor / telemetry data</div>
+    <code class="path">/device/telemetry/</code>
+    <p class="ep-desc">Send any sensor readings or measurements from your device. The <code>telemetry</code> field can hold any key-value pairs you want to log.</p>
+  </div>
+  <div class="section-label">Request Body</div>
+  <table class="field-table">
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
+    <tr><td class="fname">device_id</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Your device's ID</td></tr>
+    <tr><td class="fname">access_token</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Token from Device Verify</td></tr>
+    <tr><td class="fname">telemetry</td><td class="ftype">object</td><td><span class="req-tag required">Required</span></td><td>A JSON object of any sensor readings</td></tr>
+  </table>
+  <div class="section-label">Example Request</div>
+  <pre class="code-block">{
+  "device_id": "esp32-001",
+  "access_token": "a3f9b2c1...",
+  "telemetry": {
+    "temperature": 28.5,
+    "humidity": 65,
+    "pressure": 1013
+  }
+}</pre>
+  <div class="section-label">Responses</div>
+  <div class="resp-tabs">
+    <div class="rtab active" onclick="switchResp(this,'tel','success')">Success (201)</div>
+    <div class="rtab" onclick="switchResp(this,'tel','fail')">Unauthorized (401)</div>
+  </div>
+  <div class="resp-block visible" id="tel-success">
+    <pre class="code-block">{ "success": true, "message": "Telemetry stored successfully" }</pre>
+  </div>
+  <div class="resp-block" id="tel-fail">
+    <pre class="code-block">{ "success": false, "message": "Invalid device credentials" }</pre>
+  </div>
+</div>
+
+<!-- HEARTBEAT -->
+<div class="endpoint" id="ep-heartbeat">
+  <div class="ep-header">
+    <div class="badges"><span class="badge post">POST</span><span class="badge device">Device</span></div>
+    <div class="ep-title">Send a heartbeat (keep-alive ping)</div>
+    <code class="path">/device/heartbeat/</code>
+    <p class="ep-desc">Call this on a regular interval to tell the server your device is still alive. It updates the device's current status and how long it has been running.</p>
+  </div>
+  <div class="section-label">Request Body</div>
+  <table class="field-table">
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
+    <tr><td class="fname">device_id</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Your device's ID</td></tr>
+    <tr><td class="fname">access_token</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Token from Device Verify</td></tr>
+    <tr><td class="fname">status</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Current device state — see valid values below</td></tr>
+    <tr><td class="fname">uptime</td><td class="ftype">integer</td><td><span class="req-tag required">Required</span></td><td>Seconds since last boot</td></tr>
+  </table>
+  <div class="section-label">Valid Status Values</div>
+  <div class="status-grid">
+    <div class="status-pill s-online"><div class="val">online</div><div class="label">Working normally</div></div>
+    <div class="status-pill s-offline"><div class="val">offline</div><div class="label">Not reachable</div></div>
+    <div class="status-pill s-error"><div class="val">error</div><div class="label">Non-critical fault</div></div>
+    <div class="status-pill s-warning"><div class="val">warning</div><div class="label">Needs attention</div></div>
+    <div class="status-pill s-critical"><div class="val">critical</div><div class="label">Severe issue</div></div>
+    <div class="status-pill s-unknown"><div class="val">unknown</div><div class="label">State unclear</div></div>
+  </div>
+  <div class="section-label">Example Request</div>
+  <pre class="code-block">{
+  "device_id": "esp32-001",
+  "access_token": "a3f9b2c1...",
+  "status": "online",
+  "uptime": 3600
+}</pre>
+  <div class="section-label">Response</div>
+  <pre class="code-block">{ "success": true, "message": "Heartbeat received successfully" }</pre>
+</div>
+
+<!-- HEALTH -->
+<div class="endpoint" id="ep-health">
+  <div class="ep-header">
+    <div class="badges"><span class="badge post">POST</span><span class="badge device">Device</span></div>
+    <div class="ep-title">Report device health metrics</div>
+    <code class="path">/device/health/</code>
+    <p class="ep-desc">Send hardware-level stats like CPU load, memory, temperature, and battery. All metric fields are optional — only send what your device can measure.</p>
+  </div>
+  <div class="section-label">Request Body</div>
+  <table class="field-table">
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
+    <tr><td class="fname">device_id</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Your device's ID</td></tr>
+    <tr><td class="fname">access_token</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Token from Device Verify</td></tr>
+    <tr><td class="fname">cpu_usage</td><td class="ftype">float</td><td><span class="req-tag optional">Optional</span></td><td>CPU usage as a percentage (0–100)</td></tr>
+    <tr><td class="fname">memory_usage</td><td class="ftype">float</td><td><span class="req-tag optional">Optional</span></td><td>RAM usage as a percentage (0–100)</td></tr>
+    <tr><td class="fname">storage_usage</td><td class="ftype">float</td><td><span class="req-tag optional">Optional</span></td><td>Storage usage as a percentage (0–100)</td></tr>
+    <tr><td class="fname">temperature</td><td class="ftype">float</td><td><span class="req-tag optional">Optional</span></td><td>Device temperature in °C</td></tr>
+    <tr><td class="fname">battery_percentage</td><td class="ftype">integer</td><td><span class="req-tag optional">Optional</span></td><td>Battery level (0–100)</td></tr>
+    <tr><td class="fname">rssi</td><td class="ftype">integer</td><td><span class="req-tag optional">Optional</span></td><td>Wi-Fi signal strength in dBm (e.g. -65)</td></tr>
+  </table>
+  <div class="section-label">Example Request</div>
+  <pre class="code-block">{
+  "device_id": "esp32-001",
+  "access_token": "a3f9b2c1...",
+  "cpu_usage": 42.5,
+  "memory_usage": 58.0,
+  "temperature": 38.2,
+  "rssi": -68
+}</pre>
+  <div class="section-label">Response</div>
+  <pre class="code-block">{ "success": true, "message": "Device health logs stored successfully" }</pre>
+</div>
+
+<!-- DEPLOY FIRMWARE -->
+<div class="endpoint" id="ep-deploy">
+  <div class="ep-header">
+    <div class="badges"><span class="badge post">POST</span><span class="badge dashboard">Dashboard</span></div>
+    <div class="ep-title">Push a firmware update to a device</div>
+    <code class="path">/device/firmware/deploy/</code>
+    <p class="ep-desc">Triggered from the dashboard by a logged-in user. Queues an OTA firmware update for the target device.</p>
+  </div>
+  <div class="note auth-note" style="margin-bottom:1.25rem"><span class="note-icon">🔒</span><span>This endpoint requires a logged-in dashboard session — not a device token.</span></div>
+  <div class="section-label">Request Body</div>
+  <table class="field-table">
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
+    <tr><td class="fname">device_id</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>ID of the device to update</td></tr>
+    <tr><td class="fname">firmware_id</td><td class="ftype">integer</td><td><span class="req-tag required">Required</span></td><td>ID of the firmware version to deploy</td></tr>
+  </table>
+  <div class="section-label">Response</div>
+  <pre class="code-block">{
+  "success": true,
+  "message": "Firmware deployment queued",
+  "deployment_id": 42
+}</pre>
+  <div class="note"><span class="note-icon">ⓘ</span><span>A command with action <code>ota_update</code> is automatically created. The device handles the download and install, then reports back via Firmware Status.</span></div>
+</div>
+
+<!-- FIRMWARE STATUS -->
+<div class="endpoint" id="ep-fw-status">
+  <div class="ep-header">
+    <div class="badges"><span class="badge post">POST</span><span class="badge device">Device</span></div>
+    <div class="ep-title">Report firmware update result</div>
+    <code class="path">/device/firmware/status/</code>
+    <p class="ep-desc">After the device attempts a firmware update, it calls this to report the outcome. If status is <code>success</code>, the device's active firmware version is updated automatically.</p>
+  </div>
+  <div class="section-label">Request Body</div>
+  <table class="field-table">
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
+    <tr><td class="fname">deployment_id</td><td class="ftype">integer</td><td><span class="req-tag required">Required</span></td><td>The ID from the Deploy Firmware response</td></tr>
+    <tr><td class="fname">status</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Current stage of the update — see valid values below</td></tr>
+  </table>
+  <div class="section-label">Valid Status Values</div>
+  <div class="status-grid">
+    <div class="status-pill f-pending"><div class="val">pending</div><div class="label">Queued, not started</div></div>
+    <div class="status-pill f-downloading"><div class="val">downloading</div><div class="label">Fetching firmware</div></div>
+    <div class="status-pill f-installing"><div class="val">installing</div><div class="label">Writing to flash</div></div>
+    <div class="status-pill f-success"><div class="val">success</div><div class="label">Update complete</div></div>
+    <div class="status-pill f-failed"><div class="val">failed</div><div class="label">Update failed</div></div>
+  </div>
+  <div class="section-label">Example Request</div>
+  <pre class="code-block">{ "deployment_id": 42, "status": "success" }</pre>
+  <div class="section-label">Response</div>
+  <pre class="code-block">{ "success": true }</pre>
+  <div class="note"><span class="note-icon">ⓘ</span><span>Call this multiple times to track progress — once for <code>downloading</code>, once for <code>installing</code>, once for <code>success</code>.</span></div>
+</div>
+
+<!-- COMMAND CREATE -->
+<div class="endpoint" id="ep-cmd-create">
+  <div class="ep-header">
+    <div class="badges"><span class="badge post">POST</span><span class="badge dashboard">Dashboard</span></div>
+    <div class="ep-title">Send a command to a device</div>
+    <code class="path">/device/commands-create/</code>
+    <p class="ep-desc">Queue a command for a device to execute. Send a single command or a list of multiple commands at once.</p>
+  </div>
+  <div class="section-label">Request Body</div>
+  <table class="field-table">
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
+    <tr><td class="fname">device_id</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>ID of the target device</td></tr>
+    <tr><td class="fname">command</td><td class="ftype">string</td><td><span class="req-tag optional">One of these</span></td><td>A single command string, e.g. <code style="font-family:'JetBrains Mono',monospace;font-size:11px">reboot</code></td></tr>
+    <tr><td class="fname">multicommands</td><td class="ftype">array</td><td><span class="req-tag optional">One of these</span></td><td>A list of commands to run in sequence</td></tr>
+    <tr><td class="fname">payload</td><td class="ftype">object</td><td><span class="req-tag optional">Optional</span></td><td>Extra data to pass along with a single command</td></tr>
+  </table>
+  <div class="section-label">Single Command</div>
+  <pre class="code-block">{
+  "device_id": "esp32-001",
+  "command": "reboot",
+  "payload": { "delay_seconds": 5 }
+}</pre>
+  <div class="section-label">Multiple Commands</div>
+  <pre class="code-block">{
+  "device_id": "esp32-001",
+  "multicommands": ["set_led_red", "play_alert", "reboot"]
+}</pre>
+  <div class="section-label">Response</div>
+  <pre class="code-block">{
+  "success": true,
+  "message": "Command queued successfully",
+  "command_id": "cmd-uuid-here"
+}</pre>
+</div>
+
+<!-- COMMAND GET -->
+<div class="endpoint" id="ep-cmd-get">
+  <div class="ep-header">
+    <div class="badges"><span class="badge post">POST</span><span class="badge device">Device</span></div>
+    <div class="ep-title">Fetch pending commands</div>
+    <code class="path">/device/commands-get/</code>
+    <p class="ep-desc">The device calls this to check if any commands are waiting. All pending commands are returned and marked as "received" so they won't appear again on the next poll.</p>
+  </div>
+  <div class="section-label">Request Body</div>
+  <table class="field-table">
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
+    <tr><td class="fname">device_id</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Your device's ID</td></tr>
+    <tr><td class="fname">access_token</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Token from Device Verify</td></tr>
+  </table>
+  <div class="section-label">Response</div>
+  <pre class="code-block">{
+  "success": true,
+  "commands": [
+    {
+      "command_id": "cmd-uuid-here",
+      "command": "reboot",
+      "payload": { "delay_seconds": 5 }
+    }
+  ]
+}</pre>
+  <div class="note"><span class="note-icon">ⓘ</span><span>If no commands are waiting, <code>commands</code> will be an empty list <code>[]</code>. Poll this regularly to receive instructions in near real-time.</span></div>
+</div>
+
+<!-- COMMAND MARK -->
+<div class="endpoint" id="ep-cmd-mark">
+  <div class="ep-header">
+    <div class="badges"><span class="badge post">POST</span><span class="badge device">Device</span></div>
+    <div class="ep-title">Mark a command as completed</div>
+    <code class="path">/device/commands-mark/</code>
+    <p class="ep-desc">Once the device has finished executing a command, call this to confirm it's done. Only commands in "received" state can be marked complete.</p>
+  </div>
+  <div class="section-label">Request Body</div>
+  <table class="field-table">
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
+    <tr><td class="fname">device_id</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Your device's ID</td></tr>
+    <tr><td class="fname">access_token</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Token from Device Verify</td></tr>
+    <tr><td class="fname">command_id</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>ID of the command that was executed</td></tr>
+  </table>
+  <div class="section-label">Example Request</div>
+  <pre class="code-block">{
+  "device_id": "esp32-001",
+  "access_token": "a3f9b2c1...",
+  "command_id": "cmd-uuid-here"
+}</pre>
+  <div class="section-label">Response</div>
+  <pre class="code-block">{ "success": true, "message": "Command marked completed" }</pre>
+</div>
+
+<!-- COMMAND STATUS -->
+<div class="endpoint" id="ep-cmd-status">
+  <div class="ep-header">
+    <div class="badges"><span class="badge get">GET</span><span class="badge dashboard">Dashboard</span></div>
+    <div class="ep-title">Check the status of a command</div>
+    <code class="path">/device/commands-status/&lt;command_id&gt;/</code>
+    <p class="ep-desc">Look up the current status of any command by its ID. Useful from the dashboard to track whether a command has been picked up or completed.</p>
+  </div>
+  <div class="section-label">URL Parameter</div>
+  <table class="field-table">
+    <tr><th>Parameter</th><th>Type</th><th>What it is</th></tr>
+    <tr><td class="fname">command_id</td><td class="ftype">string</td><td>The command ID passed directly in the URL path</td></tr>
+  </table>
+  <div class="section-label">Example</div>
+  <pre class="code-block">GET /device/commands-status/cmd-uuid-here/</pre>
+  <div class="section-label">Response</div>
+  <pre class="code-block">{
+  "success": true,
+  "command_id": "cmd-uuid-here",
+  "command": "reboot",
+  "status": "completed",
+  "timestamp": "2025-06-11T10:32:00Z"
+}</pre>
+  <div class="section-label">Possible Status Values</div>
+  <table class="field-table">
+    <tr><th>Status</th><th>Meaning</th></tr>
+    <tr><td class="fname">pending</td><td>Queued — device hasn't fetched it yet</td></tr>
+    <tr><td class="fname">received</td><td>Device fetched it — not yet executed</td></tr>
+    <tr><td class="fname">completed</td><td>Device confirmed it ran successfully</td></tr>
+  </table>
+</div>
+
+<!-- ENUMS -->
+<div class="endpoint" id="ep-enums">
+  <div class="ep-header">
+    <div class="ep-title">Status values reference</div>
+    <p class="ep-desc">All valid string values accepted or returned by the API.</p>
+  </div>
+  <div class="section-label">Device Status — used in Heartbeat</div>
+  <div class="status-grid">
+    <div class="status-pill s-online"><div class="val">online</div><div class="label">Working normally</div></div>
+    <div class="status-pill s-offline"><div class="val">offline</div><div class="label">Not reachable</div></div>
+    <div class="status-pill s-error"><div class="val">error</div><div class="label">Non-critical fault</div></div>
+    <div class="status-pill s-warning"><div class="val">warning</div><div class="label">Needs attention</div></div>
+    <div class="status-pill s-critical"><div class="val">critical</div><div class="label">Severe issue</div></div>
+    <div class="status-pill s-unknown"><div class="val">unknown</div><div class="label">State unclear</div></div>
+  </div>
+  <div class="section-label" style="margin-top:1.5rem">Firmware Status — used in Firmware Status endpoint</div>
+  <div class="status-grid">
+    <div class="status-pill f-pending"><div class="val">pending</div><div class="label">Queued</div></div>
+    <div class="status-pill f-downloading"><div class="val">downloading</div><div class="label">Fetching firmware</div></div>
+    <div class="status-pill f-installing"><div class="val">installing</div><div class="label">Writing to flash</div></div>
+    <div class="status-pill f-success"><div class="val">success</div><div class="label">Update complete</div></div>
+    <div class="status-pill f-failed"><div class="val">failed</div><div class="label">Update failed</div></div>
+  </div>
+  <div class="section-label" style="margin-top:1.5rem">Command Status — returned by Command Status endpoint</div>
+  <table class="field-table">
+    <tr><th>Value</th><th>Meaning</th></tr>
+    <tr><td class="fname">pending</td><td>Queued — device hasn't fetched it yet</td></tr>
+    <tr><td class="fname">received</td><td>Device fetched it — execution in progress</td></tr>
+    <tr><td class="fname">completed</td><td>Device confirmed it ran successfully</td></tr>
+  </table>
+  <div class="note" style="margin-top:1.25rem"><span class="note-icon">⚠️</span><span>Sending an invalid status value will return a <code>400 Bad Request</code>. Always use the exact lowercase strings listed above.</span></div>
+</div>
+
+</div><!-- .content -->
+</div><!-- .wrap -->
+
+<script>
+function show(id, el) {
+  document.querySelectorAll('.endpoint').forEach(e => e.classList.remove('visible'));
+  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+  document.getElementById('ep-' + id).classList.add('visible');
+  el.classList.add('active');
+}
+function switchResp(el, prefix, key) {
+  el.closest('.endpoint').querySelectorAll('.resp-block').forEach(b => b.classList.remove('visible'));
+  el.closest('.endpoint').querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
+  document.getElementById(prefix + '-' + key).classList.add('visible');
+  el.classList.add('active');
+}
+</script>
+
+{% endblock %}
