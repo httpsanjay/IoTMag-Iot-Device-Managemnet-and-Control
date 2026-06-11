@@ -4,6 +4,19 @@ A web-based platform for managing and monitoring IoT devices built with Django a
 
 > 🎓 **Student Project** Built as a learning project to explore IoT device management, REST APIs, and real-time monitoring concepts.
 
+
+## Live Demo
+
+🔗 https://srisanjay.pythonanywhere.com/
+
+
+
+## Note ⚠️
+
+Do not share personal information while using this project. You may use dummy emails and test data.
+
+This project is currently under development.
+
 ---
 
 ## About
