@@ -1,377 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="60">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IoTMag - Fleet Management</title>
-    
-    <!-- External Icon Sets & Web Fonts -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-    
-    <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="60">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IoTMag - Fleet Management</title>
 
-  .w { font-family: 'Inter', sans-serif; background: #fff; color: #111; }
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 
-  /* ── Nav ── */
-  .fm-nav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1rem 2rem;
-    border-bottom: 0.5px solid #e5e7eb;
-  }
-  .fm-logo {
-    display: flex; align-items: center; gap: 9px;
-    text-decoration: none;
-  }
-  .fm-logo-mark {
-    width: 30px; height: 30px; background: #0F6E56;
-    border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  }
-  .fm-logo-mark i { color: #fff; font-size: 16px; }
-  .fm-logo-text { font-size: 16px; font-weight: 600; color: #111; letter-spacing: -0.3px; }
-  .fm-logo-text span { color: #1D9E75; }
-  .fm-nav-links { display: flex; gap: 4px; list-style: none; }
-  .fm-nav-links a {
-    font-size: 13px; color: #555; text-decoration: none;
-    padding: 6px 12px; border-radius: 6px; transition: background 0.12s;
-  }
-  .fm-nav-links a:hover { background: #f5f5f5; color: #111; }
-  .fm-nav-links .cta { background: #0F6E56; color: #fff !important; }
-  .fm-nav-links .cta:hover { background: #085041; }
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ── Hero ── */
-  .fm-hero {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 2.5rem; padding: 3.5rem 2rem 2.5rem;
-    align-items: center;
-  }
-  .fm-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 11px; font-weight: 500; color: #085041;
-    background: #E1F5EE; padding: 3px 10px 3px 8px;
-    border-radius: 999px; margin-bottom: 1.25rem;
-  }
-  .fm-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; display: inline-block; }
-  .fm-h1 {
-    font-size: 36px; font-weight: 600; line-height: 1.15;
-    letter-spacing: -0.8px; color: #111; margin-bottom: 0.9rem;
-  }
-  .fm-h1 em { font-style: normal; color: #1D9E75; }
-  .fm-sub {
-    font-size: 14px; line-height: 1.7; color: #555;
-    margin-bottom: 1.75rem; max-width: 400px;
-  }
-  .fm-actions { display: flex; gap: 8px; }
-  .fm-btn {
-    font-size: 13px; font-weight: 500; padding: 8px 18px;
-    border-radius: 7px; text-decoration: none; border: 0.5px solid;
-    display: inline-block; transition: all 0.12s;
-  }
-  .fm-btn-primary { background: #0F6E56; color: #fff; border-color: #0F6E56; }
-  .fm-btn-primary:hover { background: #085041; border-color: #085041; }
-  .fm-btn-secondary { background: transparent; color: #111; border-color: #ccc; }
-  .fm-btn-secondary:hover { background: #f5f5f5; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      color: #111;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-  /* ── Device card (hero right) ── */
-  .fm-device-card {
-    background: #f9fafb; border: 0.5px solid #e5e7eb;
-    border-radius: 14px; padding: 1.25rem;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .fm-dc-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding-bottom: 0.75rem; margin-bottom: 0.75rem;
-    border-bottom: 0.5px solid #e5e7eb;
-  }
-  .fm-dc-title { font-size: 12px; font-weight: 500; color: #111; }
-  .fm-dc-online { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #0F6E56; }
-  .fm-dc-dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; }
-  .fm-dc-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 5px 0; border-bottom: 0.5px solid #f0f0f0;
-    font-size: 11px;
-  }
-  .fm-dc-row:last-child { border-bottom: none; }
-  .fm-dc-label { color: #888; }
-  .fm-dc-bar-wrap { flex: 1; height: 3px; background: #e5e7eb; border-radius: 99px; margin: 0 10px; }
-  .fm-dc-bar { height: 100%; border-radius: 99px; background: #1D9E75; }
-  .fm-dc-val { font-weight: 500; }
-  .fm-ok { color: #1D9E75; }
-  .fm-warn { color: #BA7517; }
+    main { flex: 1; }
 
-  /* ── Stats ── */
-  .fm-stats {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 10px; padding: 0 2rem 2rem;
-  }
-  .fm-stat { background: #f9fafb; border-radius: 10px; padding: 0.9rem 1rem; }
-  .fm-stat-n {
-    font-size: 22px; font-weight: 600; color: #111;
-    font-family: 'JetBrains Mono', monospace; letter-spacing: -0.5px;
-  }
-  .fm-stat-l { font-size: 11px; color: #888; margin-top: 3px; }
+    /* ─── Public Nav (logged out) ─── */
+    .fm-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.85rem 2rem;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .fm-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+    .fm-logo-mark {
+      width: 30px; height: 30px; background: #0F6E56;
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    }
+    .fm-logo-mark i { color: #fff; font-size: 16px; }
+    .fm-logo-text { font-size: 15px; font-weight: 600; color: #111; letter-spacing: -0.3px; }
+    .fm-logo-text span { color: #1D9E75; }
+    .fm-nav-links { display: flex; gap: 4px; list-style: none; align-items: center; }
+    .fm-nav-links a {
+      font-size: 13px; color: #555; text-decoration: none;
+      padding: 6px 12px; border-radius: 6px; transition: background 0.12s;
+    }
+    .fm-nav-links a:hover { background: #f5f5f5; color: #111; }
+    .fm-nav-links .cta {
+      background: #0F6E56; color: #fff !important;
+      border-radius: 7px;
+    }
+    .fm-nav-links .cta:hover { background: #085041; }
 
-  /* ── Features ── */
-  .fm-section-label {
-    padding: 0 2rem 0.75rem;
-    font-size: 11px; font-weight: 500; color: #888;
-    text-transform: uppercase; letter-spacing: 0.8px;
-  }
-  .fm-divider { height: 0.5px; background: #e5e7eb; margin: 0 2rem 1.5rem; }
-  .fm-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px; padding: 0 2rem 3rem;
-  }
-  .fm-card {
-    background: #fff; border: 0.5px solid #e5e7eb;
-    border-radius: 12px; padding: 1.1rem;
-    transition: border-color 0.12s;
-  }
-  .fm-card:hover { border-color: #aaa; }
-  .fm-card-icon {
-    width: 34px; height: 34px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 0.75rem;
-  }
-  .fm-card h3 { font-size: 13px; font-weight: 500; color: #111; margin-bottom: 4px; }
-  .fm-card p { font-size: 12px; line-height: 1.55; color: #666; }
+    /* ─── App Nav (logged in) ─── */
+    .app-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+      height: 52px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .app-nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; flex-shrink: 0; }
+    .app-nav-logo-mark {
+      width: 28px; height: 28px; background: #0F6E56;
+      border-radius: 7px; display: flex; align-items: center; justify-content: center;
+    }
+    .app-nav-logo-mark i { color: #fff; font-size: 14px; }
+    .app-nav-logo-text { font-size: 15px; font-weight: 600; color: #111; letter-spacing: -0.3px; }
+    .app-nav-logo-text span { color: #1D9E75; }
 
+    .app-nav-links { display: flex; gap: 2px; list-style: none; align-items: center; }
+    .app-nav-links a {
+      font-size: 13px; color: #555; text-decoration: none;
+      padding: 6px 11px; border-radius: 6px;
+      transition: background 0.12s, color 0.12s;
+      display: flex; align-items: center; gap: 5px;
+      white-space: nowrap;
+    }
+    .app-nav-links a i { font-size: 15px; }
+    .app-nav-links a:hover { background: #f5f5f5; color: #111; }
+    .app-nav-links a.active { color: #0F6E56; background: #E1F5EE; font-weight: 500; }
 
-        
-        /* Modular Footer Styles */
-        .fm-footer {
-            background-color: #0f172a;
-            color: #94a3b8;
-            padding: 40px 24px;
-            border-top: 1px solid #1e293b;
-            font-size: 0.875rem;
-        }
-        .fm-footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .fm-footer-brand {
-            color: #ffffff;
-            font-weight: 600;
-        }
-        .fm-footer-links {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            gap: 24px;
-        }
-        .fm-footer-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-        .fm-footer-links a:hover {
-            color: #38bdf8;
-        }
+    /* Avatar + dropdown */
+    .nav-avatar-wrap { position: relative; margin-left: 8px; }
+    .nav-avatar {
+      width: 30px; height: 30px; background: #0F6E56;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: #fff;
+      cursor: pointer; user-select: none; transition: opacity 0.12s;
+      flex-shrink: 0;
+    }
+    .nav-avatar:hover { opacity: 0.85; }
 
-          .settings-nav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1rem 2rem;
-    background: #fff;
-    border-bottom: 0.5px solid #e5e7eb;
-    position: relative;
-  }
-  .settings-nav-logo {
-    display: flex; align-items: center; gap: 8px; text-decoration: none;
-  }
-  .settings-nav-logo-mark {
-    width: 28px; height: 28px; background: #0F6E56;
-    border-radius: 7px; display: flex; align-items: center; justify-content: center;
-  }
-  .settings-nav-logo-mark i { color: #fff; font-size: 14px; }
-  .settings-nav-logo-text { font-size: 15px; font-weight: 600; color: #111; letter-spacing: -0.3px; }
-  .settings-nav-logo-text span { color: #1D9E75; }
-  .settings-nav-links { display: flex; gap: 4px; list-style: none; align-items: center; }
-  .settings-nav-links a {
-    font-size: 13px; color: #555; text-decoration: none;
-    padding: 6px 12px; border-radius: 6px; transition: background 0.12s;
-  }
-  .settings-nav-links a:hover { background: #f5f5f5; color: #111; }
-  .settings-nav-links a.active { color: #0F6E56; background: #E1F5EE; }
+    .nav-dropdown {
+      position: absolute; right: 0; top: calc(100% + 8px);
+      background: #fff; border: 1px solid #e5e7eb;
+      border-radius: 12px; padding: 6px; min-width: 188px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      z-index: 200; opacity: 0; pointer-events: none;
+      transform: translateY(-4px);
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .nav-dropdown.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .nav-dropdown-header {
+      padding: 8px 10px 10px; border-bottom: 1px solid #f0f0f0; margin-bottom: 4px;
+    }
+    .nav-dropdown-name { font-size: 13px; font-weight: 600; color: #111; }
+    .nav-dropdown-email { font-size: 11px; color: #888; margin-top: 1px; }
+    .nav-dropdown a, .nav-dropdown button {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 8px 10px; border-radius: 7px;
+      font-size: 13px; color: #555; text-decoration: none;
+      border: none; background: none; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: background 0.1s;
+    }
+    .nav-dropdown a:hover, .nav-dropdown button:hover { background: #f5f5f5; color: #111; }
+    .nav-dropdown a i, .nav-dropdown button i { font-size: 15px; color: #aaa; }
+    .nav-dropdown-divider { height: 1px; background: #f0f0f0; margin: 4px 0; }
+    .nav-logout { color: #A32D2D !important; }
+    .nav-logout i { color: #A32D2D !important; }
+    .nav-logout:hover { background: #FCEBEB !important; }
 
-  /* Avatar + dropdown */
-  .nav-avatar-wrap { position: relative; }
-  .settings-nav-avatar {
-    width: 30px; height: 30px; background: #0F6E56;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 600; color: #fff;
-    cursor: pointer; user-select: none; transition: opacity 0.12s;
-  }
-  .settings-nav-avatar:hover { opacity: 0.85; }
-
-  .nav-dropdown {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 8px);
-    background: #fff;
-    border: 0.5px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 6px;
-    min-width: 180px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    z-index: 100;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-4px);
-    transition: opacity 0.15s, transform 0.15s;
-  }
-  .nav-dropdown.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
-
-  .nav-dropdown-header {
-    padding: 8px 10px 10px;
-    border-bottom: 0.5px solid #f0f0f0;
-    margin-bottom: 4px;
-  }
-  .nav-dropdown-name { font-size: 13px; font-weight: 600; color: #111; }
-  .nav-dropdown-email { font-size: 11px; color: #888; margin-top: 1px; }
-
-  .nav-dropdown a,
-  .nav-dropdown button {
-    display: flex; align-items: center; gap: 8px;
-    width: 100%; padding: 8px 10px; border-radius: 7px;
-    font-size: 13px; color: #555; text-decoration: none;
-    border: none; background: none; cursor: pointer;
-    font-family: 'Inter', sans-serif; transition: background 0.1s;
-  }
-  .nav-dropdown a:hover,
-  .nav-dropdown button:hover { background: #f5f5f5; color: #111; }
-  .nav-dropdown a i,
-  .nav-dropdown button i { font-size: 15px; color: #888; }
-
-  .nav-dropdown-divider { height: 0.5px; background: #f0f0f0; margin: 4px 0; }
-
-  .nav-dropdown .nav-logout { color: #A32D2D; }
-  .nav-dropdown .nav-logout i { color: #A32D2D; }
-  .nav-dropdown .nav-logout:hover { background: #FCEBEB; }
-    </style>
-
+    /* ─── Footer ─── */
+    .fm-footer {
+      background: #0f172a; color: #94a3b8;
+      padding: 32px 24px;
+      border-top: 1px solid #1e293b;
+      font-size: 13px;
+    }
+    .fm-footer-content {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .fm-footer-brand { color: #fff; font-weight: 600; }
+    .fm-footer-links { list-style: none; display: flex; gap: 20px; }
+    .fm-footer-links a { color: #94a3b8; text-decoration: none; transition: color 0.2s; }
+    .fm-footer-links a:hover { color: #38bdf8; }
+  </style>
 </head>
 
 <body>
-
-<div class="fm-wrap">
   {% if user.is_authenticated %}
 
-<nav class="settings-nav">
-  <a href="{% url 'home' %}" class="settings-nav-logo">
-    <div class="settings-nav-logo-mark"><i class="ti ti-cpu"></i></div>
-    <span class="settings-nav-logo-text">IoT<span>Mag</span></span>
-  </a>
+  <nav class="app-nav">
+    <a href="{% url 'home' %}" class="app-nav-logo">
+      <div class="app-nav-logo-mark"><i class="ti ti-cpu"></i></div>
+      <span class="app-nav-logo-text">IoT<span>Mag</span></span>
+    </a>
 
-  <ul class="settings-nav-links">
-    <li><a href="{% url 'home' %}">Home</a></li>
-    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-    <li><a href="{% url 'telemetry_page' %}" >Telemetry</a></li>
-    <li><a href="{% url 'all_commands' %}" >All Commands</a></li>
-    <li><a href="{% url 'device_config' %}" > Device Config</a></li>
-    <li><a href="{% url 'account_settings' %}" class="active">Settings</a></li>
-  </ul>
+    <ul class="app-nav-links">
+      <li><a href="{% url 'home' %}"><i class="ti ti-home"></i> Home</a></li>
+      <li><a href="{% url 'dashboard' %}"><i class="ti ti-layout-dashboard"></i> Dashboard</a></li>
+      <li><a href="{% url 'telemetry_page' %}"><i class="ti ti-chart-line"></i> Telemetry</a></li>
+      <li><a href="{% url 'all_commands' %}"><i class="ti ti-terminal-2"></i> Commands</a></li>
+      <li><a href="{% url 'device_config' %}"><i class="ti ti-adjustments"></i> Device Config</a></li>
+      <li><a href="{% url 'account_settings' %}"><i class="ti ti-settings"></i> Settings</a></li>
+    </ul>
 
-  <div class="nav-avatar-wrap">
-    <div class="settings-nav-avatar" id="navAvatarBtn" aria-haspopup="true" aria-expanded="false">
-      {{ user.first_name|first|upper }}
-    </div>
-
-    <div class="nav-dropdown" id="navDropdown" role="menu">
-      <div class="nav-dropdown-header">
-        <div class="nav-dropdown-name">
-          {{ user.get_full_name|default:user.username }}
-        </div>
-        <div class="nav-dropdown-email">{{ user.email }}</div>
+    <div class="nav-avatar-wrap">
+      <div class="nav-avatar" id="navAvatarBtn" aria-haspopup="true" aria-expanded="false">
+        {{ user.first_name|first|upper }}
       </div>
-
-      <a href="{% url 'dashboard' %}" role="menuitem">
-        <i class="ti ti-layout-dashboard"></i> Dashboard
-      </a>
-
-      <a href="{% url 'account_settings' %}" role="menuitem">
-        <i class="ti ti-settings"></i> Settings
-      </a>
-
-      <div class="nav-dropdown-divider"></div>
-
-      <form method="POST" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit" class="nav-logout" role="menuitem">
-          <i class="ti ti-logout"></i> Log out
-        </button>
-      </form>
-    </div>
-  </div>
-</nav>
-
-{% else %}
-
-<nav class="fm-nav">
-  <a class="fm-logo" href="{% url 'home' %}">
-    <div class="fm-logo-mark"><i class="ti ti-cpu"></i></div>
-    <span class="fm-logo-text">IoT<span>Mag</span></span>
-  </a>
-
-  <ul class="fm-nav-links">
-    <li><a href="{% url 'home' %}">Home</a></li>
-    <li><a href="{% url 'login' %}">Login</a></li>
-    <li><a href="{% url 'signup' %}" class="cta">Sign up</a></li>
-  </ul>
-</nav>
-
-{% endif %}
-
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
-
-
-    <footer class="fm-footer">
-        <div class="fm-footer-content">
-            <div class="fm-footer-left">
-                <span class="fm-footer-brand">IoTMag</span> &copy; 2026 Fleet Management Platform. All rights reserved.
-            </div>
-            <ul class="fm-footer-links">
-                <li><a href="https://www.linkedin.com/in/srisanjayk/">linkedin</a></li>
-                <li><a href="https://www.reddit.com/user/SriSanjayy/">Reddit</a></li>
-                <li><a href="iotmag_api_docs">Documentation</a></li>
-                <li><a href="mailto:sanjay2904sri@gmail.com">Contact</a></li>
-            </ul>
+      <div class="nav-dropdown" id="navDropdown" role="menu">
+        <div class="nav-dropdown-header">
+          <div class="nav-dropdown-name">{{ user.get_full_name|default:user.username }}</div>
+          <div class="nav-dropdown-email">{{ user.email }}</div>
         </div>
-    </footer>
+        <a href="{% url 'dashboard' %}" role="menuitem"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+        <a href="{% url 'account_settings' %}" role="menuitem"><i class="ti ti-settings"></i> Settings</a>
+        <div class="nav-dropdown-divider"></div>
+        <form method="POST" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="nav-logout" role="menuitem">
+            <i class="ti ti-logout"></i> Log out
+          </button>
+        </form>
+      </div>
+    </div>
+  </nav>
 
+  {% else %}
 
-    <script>
-  const navAvatarBtn = document.getElementById('navAvatarBtn');
-  const navDropdown  = document.getElementById('navDropdown');
+  <nav class="fm-nav">
+    <a class="fm-logo" href="{% url 'home' %}">
+      <div class="fm-logo-mark"><i class="ti ti-cpu"></i></div>
+      <span class="fm-logo-text">IoT<span>Mag</span></span>
+    </a>
+    <ul class="fm-nav-links">
+      <li><a href="{% url 'home' %}">Home</a></li>
+      <li><a href="{% url 'login' %}">Login</a></li>
+      <li><a href="{% url 'signup' %}" class="cta">Sign up</a></li>
+    </ul>
+  </nav>
 
-  navAvatarBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isOpen = navDropdown.classList.toggle('open');
-    navAvatarBtn.setAttribute('aria-expanded', isOpen);
-  });
+  {% endif %}
 
-  // Close when clicking anywhere outside
-  document.addEventListener('click', () => {
-    navDropdown.classList.remove('open');
-    navAvatarBtn.setAttribute('aria-expanded', false);
-  });
+  <main>
+    {% block content %}{% endblock %}
+  </main>
 
-  // Prevent dropdown clicks from closing it
-  navDropdown.addEventListener('click', (e) => e.stopPropagation());
-</script>
+  <footer class="fm-footer">
+    <div class="fm-footer-content">
+      <div><span class="fm-footer-brand">IoTMag</span> &copy; 2026 Fleet Management Platform. All rights reserved.</div>
+      <ul class="fm-footer-links">
+        <li><a href="https://www.linkedin.com/in/srisanjayk/" target="_blank">LinkedIn</a></li>
+        <li><a href="https://www.reddit.com/user/SriSanjayy/" target="_blank">Reddit</a></li>
+        <li><a href="iotmag_api_docs">Docs</a></li>
+        <li><a href="mailto:sanjay2904sri@gmail.com">Contact</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    const navAvatarBtn = document.getElementById('navAvatarBtn');
+    const navDropdown  = document.getElementById('navDropdown');
+    if (navAvatarBtn) {
+      navAvatarBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = navDropdown.classList.toggle('open');
+        navAvatarBtn.setAttribute('aria-expanded', isOpen);
+      });
+      document.addEventListener('click', () => {
+        navDropdown.classList.remove('open');
+        navAvatarBtn.setAttribute('aria-expanded', false);
+      });
+      navDropdown.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    // Highlight active nav link
+    const currentPath = window.location.pathname;
+    document.querySelectorAll('.app-nav-links a').forEach(link => {
+      if (link.getAttribute('href') && currentPath.startsWith(link.getAttribute('href')) && link.getAttribute('href') !== '/') {
+        link.classList.add('active');
+      }
+    });
+  </script>
 </body>
 </html>
