@@ -22,6 +22,7 @@ from device.models import (
     DeviceHealth,
     Firmware,
     Telemetry,
+    DeviceGroup
 )
 
 User = get_user_model()
@@ -496,3 +497,157 @@ def handler500(request):
 
 # ------------------------------------------------------------------------------------------
 
+
+@login_required
+def group_list(request):
+
+    groups = DeviceGroup.objects.filter(
+        owner=request.user
+    ).prefetch_related("devices")
+
+    devices = Device.objects.filter(
+        owner=request.user
+    ).order_by("device_name")
+
+    return render(
+        request,
+        "group_list.html",
+        {
+            "groups": groups,
+            "devices": devices,
+        }
+    )
+
+
+@login_required
+def create_group(request):
+
+    if request.method == "POST":
+
+        group_name = request.POST.get("group_name")
+
+        selected_devices = request.POST.getlist(
+            "devices"
+        )
+
+        group = DeviceGroup.objects.create(
+            owner=request.user,
+            name=group_name,
+        )
+
+        
+
+        Device.objects.filter(
+            owner=request.user,
+            device_id__in=selected_devices
+        ).update(group=group)
+
+    return redirect("group_list")
+
+
+@login_required
+def add_device_to_group(request):
+
+    if request.method == "POST":
+
+        group_id = request.POST.get("group_id")
+        device_id = request.POST.get("device_id")
+
+        try:
+
+            group = DeviceGroup.objects.get(
+                id=group_id,
+                owner=request.user
+            )
+
+            device = Device.objects.get(
+                device_id=device_id,
+                owner=request.user
+            )
+
+            device.group = group
+            device.save()
+
+        except (DeviceGroup.DoesNotExist,
+                Device.DoesNotExist):
+            pass
+
+    return redirect("group_list")
+
+
+@login_required
+def remove_device_from_group(request):
+
+    if request.method == "POST":
+
+        device_id = request.POST.get("device_id")
+
+        try:
+
+            device = Device.objects.get(
+                device_id=device_id,
+                owner=request.user
+            )
+
+            device.group = None
+            device.save()
+
+        except Device.DoesNotExist:
+            pass
+
+    return redirect("group_list")
+
+
+@login_required
+def delete_group(request):
+
+    if request.method == "POST":
+
+        group_id = request.POST.get("group_id")
+
+        try:
+
+            group = DeviceGroup.objects.get(
+                id=group_id,
+                owner=request.user
+            )
+
+            Device.objects.filter(
+                group=group
+            ).update(group=None)
+
+            group.delete()
+
+        except DeviceGroup.DoesNotExist:
+            pass
+
+    return redirect("group_list")
+
+
+@login_required
+def group_command(request):
+
+    if request.method == "POST":
+
+        group_id = request.POST.get("group_id")
+        command = request.POST.get("command")
+
+        try:
+
+            group = DeviceGroup.objects.get(
+                id=group_id,
+                owner=request.user
+            )
+
+            for device in group.devices.all():
+
+                Command.objects.create(
+                    device=device,
+                    command=command,
+                    command_status="pending"
+                )
+
+        except DeviceGroup.DoesNotExist:
+            pass
+
+    return redirect("group_list")

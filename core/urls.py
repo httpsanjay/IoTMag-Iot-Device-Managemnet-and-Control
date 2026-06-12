@@ -17,6 +17,12 @@ urlpatterns =[
     path('dashboard/telemetry_page/', views.telemetry_page, name='telemetry_page'),
     path('dashboard/device_config/', views.device_config, name='device_config'),
     path("dashboard/firmware/upload/",views.firmware_upload,name="firmware_upload"),
+    path("groups/", views.group_list, name="group_list"),
+    path("groups/create/", views.create_group, name="create_group"),
+    path("groups/add-device/", views.add_device_to_group, name="add_device_to_group"),
+    path("groups/remove-device/", views.remove_device_from_group, name="remove_device_from_group"),
+    path("groups/delete/", views.delete_group, name="delete_group"),
+    path("groups/command/", views.group_command, name="group_command"),
     
 ]
 

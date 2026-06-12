@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  
+  /* ── Page ── */
+  .grp-page { padding: 1.5rem; max-width: 900px; margin: 0 auto; }
+  .grp-page-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+  .grp-back { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #555; text-decoration: none; padding: 5px 10px; border: 0.5px solid #e5e7eb; border-radius: 7px; background: #fff; }
+  .grp-page-title { font-size: 20px; font-weight: 500; color: #111; letter-spacing: -0.4px; }
+  .grp-page-sub { font-size: 13px; color: #888; margin-top: 1px; }
+
+  /* ── Card ── */
+  .grp-card { background: #fff; border: 0.5px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; }
+  .grp-card-title { font-size: 13px; font-weight: 500; color: #111; display: flex; align-items: center; gap: 6px; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid #f0f0f0; }
+  .grp-card-title i { font-size: 16px; color: #0F6E56; }
+
+  /* ── Fields ── */
+  .grp-field { margin-bottom: 1rem; }
+  .grp-field label { display: block; font-size: 11px; font-weight: 500; color: #555; margin-bottom: 5px; }
+  .grp-field input, .grp-field select { width: 100%; padding: 8px 10px; font-size: 12px; font-family: 'Inter', sans-serif; border: 0.5px solid #e5e7eb; border-radius: 8px; background: #fff; color: #111; outline: none; }
+  .grp-field input:focus, .grp-field select:focus { border-color: #1D9E75; box-shadow: 0 0 0 2px rgba(29,158,117,0.1); }
+  .grp-field-hint { font-size: 11px; color: #aaa; margin-top: 3px; }
+
+  /* ── Checkboxes ── */
+  .grp-checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 0.75rem 0; }
+  .grp-checkbox-item { display: flex; align-items: center; gap: 6px; padding: 6px 0; }
+  .grp-checkbox-item input { width: 16px; height: 16px; cursor: pointer; accent-color: #1D9E75; }
+  .grp-checkbox-item label { cursor: pointer; font-size: 12px; color: #111; flex: 1; margin: 0; }
+
+  /* ── Buttons ── */
+  .btn { font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 7px; border: 0.5px solid; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.12s; display: inline-flex; align-items: center; gap: 5px; }
+  .btn-primary { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .btn-primary:hover { background: #085041; }
+  .btn-ghost { background: #fff; color: #555; border-color: #e5e7eb; }
+  .btn-ghost:hover { background: #f5f5f5; }
+  .btn-danger { background: #fff; color: #A32D2D; border-color: #F09595; }
+  .btn-danger:hover { background: #FCEBEB; }
+  .btn-sm { font-size: 11px; padding: 5px 11px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── Group card ── */
+  .grp-group-card { background: #fff; border: 0.5px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; }
+  .grp-group-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid #f0f0f0; }
+  .grp-group-title { font-size: 14px; font-weight: 500; color: #111; display: flex; align-items: center; gap: 6px; }
+  .grp-group-title i { font-size: 16px; color: #0F6E56; }
+  .grp-group-stat { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #555; background: #f9fafb; padding: 2px 8px; border-radius: 999px; }
+
+  /* ── Device list ── */
+  .grp-device-list { display: grid; gap: 8px; margin: 1rem 0; }
+  .grp-device-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: #f9fafb; border-radius: 8px; border: 0.5px solid #e5e7eb; }
+  .grp-device-info { display: flex; flex-direction: column; flex: 1; }
+  .grp-device-name { font-size: 12px; font-weight: 500; color: #111; }
+  .grp-device-id { font-size: 11px; color: #888; font-family: 'JetBrains Mono', monospace; }
+  .grp-device-actions { display: flex; gap: 6px; align-items: center; }
+
+  /* ── Badges ── */
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.7; }
+  .badge-online { background: #E1F5EE; color: #085041; }
+  .badge-offline { background: #f3f4f6; color: #888; }
+
+  /* ── Section title ── */
+  .grp-section-title { font-size: 12px; font-weight: 500; color: #111; margin: 1.25rem 0 0.75rem; padding: 0.75rem 0; border-top: 0.5px solid #e5e7eb; }
+
+  /* ── Inline form ── */
+  .grp-inline-form { display: flex; gap: 8px; margin: 0.75rem 0; }
+  .grp-inline-form input, .grp-inline-form select { flex: 1; padding: 8px 10px; font-size: 12px; font-family: 'Inter', sans-serif; border: 0.5px solid #e5e7eb; border-radius: 8px; background: #fff; color: #111; outline: none; }
+  .grp-inline-form input:focus, .grp-inline-form select:focus { border-color: #1D9E75; }
+
+  /* ── Stats ── */
+  .grp-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+  .grp-stat-box { background: #f9fafb; border-radius: 8px; padding: 0.75rem; }
+  .grp-stat-label { font-size: 11px; color: #888; margin-bottom: 2px; }
+  .grp-stat-value { font-size: 16px; font-weight: 600; color: #111; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Empty state ── */
+  .grp-empty { text-align: center; padding: 2rem; color: #888; font-size: 13px; }
+  .grp-empty i { font-size: 28px; display: block; margin-bottom: 8px; color: #ccc; }
+</style>
+
+
+
+<div class="grp-page">
+
+  <!-- Page header -->
+  <div class="grp-page-header">
+    <a href="{% url 'dashboard' %}" class="grp-back"><i class="ti ti-arrow-left"></i> Dashboard</a>
+    <div>
+      <div class="grp-page-title">Device Groups</div>
+      <div class="grp-page-sub">Organize and manage multiple devices as a single unit</div>
+    </div>
+  </div>
+
+  <!-- Create Group Card -->
+  <div class="grp-card">
+    <div class="grp-card-title"><i class="ti ti-plus"></i> Create new group</div>
+    <form method="POST" action="{% url 'create_group' %}">
+      {% csrf_token %}
+
+      <div class="grp-field">
+        <label>Group name</label>
+        <input type="text" name="group_name" placeholder="e.g. Building Floor 1, Warehouse Sensors" required>
+        <div class="grp-field-hint">A descriptive name to identify this group of devices.</div>
+      </div>
+
+      <div class="grp-field">
+        <label>Select devices to add</label>
+        <div class="grp-checkbox-group">
+          {% for device in devices %}
+          <div class="grp-checkbox-item">
+            <input type="checkbox" id="dev_{{ device.id }}" name="devices" value="{{ device.device_id }}">
+            <label for="dev_{{ device.id }}">{{ device.device_name }} <span style="color:#888;">({{ device.device_id }})</span></label>
+          </div>
+          {% empty %}
+          <p style="color:#888;font-size:12px;grid-column:1/-1;">No devices available.</p>
+          {% endfor %}
+        </div>
+        <div class="grp-field-hint">Leave empty to create an empty group — add devices later.</div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="submit" class="btn btn-primary"><i class="ti ti-plus"></i> Create group</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Groups Section -->
+  <div>
+    <h2 style="font-size:14px;font-weight:500;color:#111;margin-bottom:1rem;display:flex;align-items:center;gap:6px;">
+      <i class="ti ti-folder" style="color:#0F6E56;font-size:16px;"></i>
+      Existing groups ({{ groups.count }})
+    </h2>
+
+    {% for group in groups %}
+
+    <div class="grp-group-card">
+      <div class="grp-group-header">
+        <div class="grp-group-title"><i class="ti ti-folder-open"></i> {{ group.name }}</div>
+        <div style="display:flex;gap:6px;">
+          <span class="grp-group-stat">{{ group.devices.count }} device{{ group.devices.count|pluralize }}</span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grp-stats">
+        <div class="grp-stat-box">
+          <div class="grp-stat-label">Configured devices</div>
+          <div class="grp-stat-value">{{ group.number_of_devices|default:0 }}</div>
+        </div>
+        <div class="grp-stat-box">
+          <div class="grp-stat-label">Online / Total</div>
+          <div class="grp-stat-value">
+            <span style="color:#0F6E56;">{{ group.devices.count }}</span>
+            <span style="color:#aaa;font-weight:400;"> / </span>
+            <span style="color:#aaa;">{{ group.devices.count }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Send Group Command -->
+      <div class="grp-section-title">Send group command</div>
+      <form method="POST" action="{% url 'group_command' %}" class="grp-inline-form">
+        {% csrf_token %}
+        <input type="hidden" name="group_id" value="{{ group.id }}">
+        <input type="text" name="command" placeholder="e.g. restart, ping, sync_time" required>
+        <button type="submit" class="btn btn-primary"><i class="ti ti-send"></i> Send to all</button>
+      </form>
+
+      <!-- Devices in Group -->
+      <div class="grp-section-title">Devices in this group</div>
+      {% if group.devices.all %}
+      <div class="grp-device-list">
+        {% for device in group.devices.all %}
+        <div class="grp-device-item">
+          <div class="grp-device-info">
+            <div class="grp-device-name">{{ device.device_name }}</div>
+            <div class="grp-device-id">{{ device.device_id }}</div>
+          </div>
+          <div class="grp-device-actions">
+            {% if device.is_online %}
+            <span class="badge badge-online"><span class="badge-dot"></span>Online</span>
+            {% else %}
+            <span class="badge badge-offline"><span class="badge-dot"></span>Offline</span>
+            {% endif %}
+            <form method="POST" action="{% url 'remove_device_from_group' %}" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="device_id" value="{{ device.device_id }}">
+              <button type="submit" class="btn btn-ghost btn-sm"><i class="ti ti-x"></i> Remove</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="grp-empty">
+        <i class="ti ti-inbox"></i>
+        <div>No devices assigned to this group.</div>
+      </div>
+      {% endif %}
+
+      <!-- Add Device to Group -->
+      <div class="grp-section-title">Add existing device</div>
+      <form method="POST" action="{% url 'add_device_to_group' %}" class="grp-inline-form">
+        {% csrf_token %}
+        <input type="hidden" name="group_id" value="{{ group.id }}">
+        <select name="device_id">
+          {% with unassigned=devices|dictsort:"device_name" %}
+            {% for device in unassigned %}
+              {% if not device.group %}
+              <option value="{{ device.device_id }}">{{ device.device_name }} ({{ device.device_id }})</option>
+              {% endif %}
+            {% empty %}
+            <option disabled>No unassigned devices</option>
+            {% endfor %}
+          {% endwith %}
+        </select>
+        <button type="submit" class="btn btn-primary"><i class="ti ti-plus"></i> Add</button>
+      </form>
+
+      <!-- Delete Group -->
+      <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid #e5e7eb;display:flex;justify-content:flex-end;">
+        <form method="POST" action="{% url 'delete_group' %}">
+          {% csrf_token %}
+          <input type="hidden" name="group_id" value="{{ group.id }}">
+          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete group &quot;{{ group.name }}&quot;? This will not delete the devices.');">
+            <i class="ti ti-trash"></i> Delete group
+          </button>
+        </form>
+      </div>
+    </div>
+
+    {% empty %}
+
+    <div class="grp-empty">
+      <i class="ti ti-folder-off"></i>
+      <div>No groups created yet. Create your first group above!</div>
+    </div>
+
+    {% endfor %}
+
+  </div>
+
+</div>
+
+{% endblock %}

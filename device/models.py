@@ -11,6 +11,12 @@ def generate_device_token():
 def generate_command_id():
     return str(uuid.uuid4())
 
+class DeviceGroup(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class Device(models.Model):
     @property
     def is_online(self):
@@ -28,6 +34,13 @@ class Device(models.Model):
         ('warning', 'Warning'),
         ('critical', 'Critical'),
         ('unknown', 'Unknown'),
+    )
+    group = models.ForeignKey(
+        DeviceGroup,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="devices"
     )
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='devices')
