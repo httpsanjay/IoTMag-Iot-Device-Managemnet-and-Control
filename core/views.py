@@ -24,6 +24,9 @@ from device.models import (
     Telemetry,
     DeviceGroup
 )
+from django.views.decorators.cache import cache_page
+from core.helper import welcome_email, password_reset_mail
+from django.core.mail import send_mail
 
 User = get_user_model()
 
@@ -31,9 +34,11 @@ User = get_user_model()
 # Pages
 #This will cache the page for 15 Min
 
-
+# @cache_page(60 * 15)
 def home(request):
+    
     return render(request, 'index.html')
+    
 
 
 def login_view(request):
@@ -85,9 +90,12 @@ def signup(request):
             first_name=name,
             password=password
         )
+        welcome_email(request,email,username)
 
         login(request, user)
         messages.success(request,f"Hlo, {user.username}!")
+
+
         return redirect("dashboard")
     
     return render(request, "signup.html")
@@ -229,7 +237,40 @@ def account_settings(request):
     return render(request, "account_settings.html")
 
 def password_reset(request):
-    #Under development
+    if request.method == "POST":
+        email = request.POST.get("email")
+
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
+            temp_password = secrets.token_hex(8)
+            user.set_password(temp_password)
+            user.save()
+
+            message_content = (
+                "Hello,\n\n"
+                "We received a request to reset your password for your IOT_MAG account.\n"
+                f"Your temporary password is: {temp_password}\n\n"
+                "Please log in using this temporary password and change it immediately "
+                "from your account dashboard settings.\n\n"
+                "Best regards,\n"
+                "IoT_MAG Team"
+            )
+
+
+            send_mail(
+                subject="Your IOT_MAG Password Reset Request",
+                message=message_content,
+                from_email=os.environ.get("FROM_EMAIL"),
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            
+            messages.success(request, "A temporary password has been sent to your email inbox.")
+            return redirect("login")
+        else:
+            messages.error(request, "No account found matching that email address.")
+            return redirect("password_reset")
+  
     return render(request, 'password_reset.html')
 
 

@@ -203,7 +203,7 @@ Content-Type: application/json
 - Redis -DONE
 - Login/Signup EMAIL 
 - MQTT protocol support
-- Device grouping
+- Device grouping - DONE
 - Analytics dashboard
 
 
