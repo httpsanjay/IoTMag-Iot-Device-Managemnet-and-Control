@@ -1,348 +1,245 @@
-# IoT Mag — IoT Device Management and Control
+# IoTMag-Iot-Device-Managemnet-and-Control
 
-A Django-based IoT device management platform for registering devices, receiving telemetry, monitoring device health, and managing remote commands through HTTP APIs.
+> Centralized Django platform for IoT device telemetry, health monitoring, and remote control.
 
-IoT Mag explores how embedded devices such as the ESP32 can communicate securely with a centralized backend for device monitoring and control.
+![GitHub stars](https://img.shields.io/github/stars/httpsanjay/IoTMag-Iot-Device-Managemnet-and-Control?style=for-the-badge&logo=github) ![GitHub forks](https://img.shields.io/github/forks/httpsanjay/IoTMag-Iot-Device-Managemnet-and-Control?style=for-the-badge&logo=github) ![GitHub issues](https://img.shields.io/github/issues/httpsanjay/IoTMag-Iot-Device-Managemnet-and-Control?style=for-the-badge&logo=github) ![Last commit](https://img.shields.io/github/last-commit/httpsanjay/IoTMag-Iot-Device-Managemnet-and-Control?style=for-the-badge&logo=github) ![License](https://img.shields.io/badge/license-LICENSE-green?style=for-the-badge)
 
-> **Project status:** Under development. This project is intended for learning, experimentation, and continued development.
+## 📑 Table of Contents
 
-## Overview
+- [Description](#description)
+- [Key Features](#key-features)
+- [Use Cases](#use-cases)
+- [Screenshots](#screenshots)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Quick Start](#quick-start)
+- [Key Dependencies](#key-dependencies)
+- [Project Structure](#project-structure)
+- [Development Setup](#development-setup)
+- [Deployment](#deployment)
+- [Contributors](#contributors)
+- [Contributing](#contributing)
+- [License](#license)
 
-IoT Mag provides a central backend through which IoT devices communicate with a web application. Devices authenticate with the backend, periodically send data, and retrieve commands issued through the platform.
+## 📝 Description
 
-The project focuses on device identity, HTTP API design, data ingestion, device health monitoring, command management, and containerized deployment.
+IoT Mag is a Django-based backend platform designed to manage and monitor connected hardware such as ESP32 devices. It addresses the challenge of coordinating distributed microcontrollers by providing structured HTTP endpoints to handle device registration, health monitoring, and incoming telemetry data.
 
-## Features
+The architecture connects embedded devices to a central web service using token-based HTTP authentication. Microcontrollers transmit periodic heartbeats, status reports, and sensor telemetry back to the server, while simultaneously polling for pending commands created and managed within the platform.
 
-- **Device verification:** Verify devices before they communicate with the backend.
-- **Device authentication:** Issue individual access tokens to verified devices.
-- **Heartbeat monitoring:** Receive periodic heartbeat requests from devices.
-- **Telemetry collection:** Receive and store device telemetry.
-- **Health reporting:** Accept device health information.
-- **Remote command management:** Create commands, let devices retrieve pending commands, and track command completion.
-- **Web application:** Manage and monitor IoT devices through the Django application.
-- **Docker support:** Build and run the application in a container.
-- **SQLite database:** Store application data using SQLite.
+Configured for containerized deployment with Docker and Docker Compose, this system serves developers prototyping custom IoT deployments, learning microcontroller-to-cloud workflows, and managing remote device operations.
 
-## Technology Stack
+## ✨ Key Features
 
-| Component | Technology |
-|---|---|
-| Backend | Python, Django |
-| API | Django REST Framework |
-| Database | SQLite |
-| Device communication | HTTP |
-| Embedded device | ESP32-compatible devices |
-| Frontend | HTML, CSS, JavaScript |
-| Containerization | Docker |
-| Version control | Git and GitHub |
+- **🔐 Device Verification and Authentication** — Verifies hardware identity and issues dedicated access tokens to secure device-to-backend communication.
+- **💓 Heartbeat and Health Monitoring** — Receives periodic heartbeat pings and health reports to track the operational status of connected devices.
+- **📊 Telemetry Ingestion Pipeline** — Collects and persists sensor and device telemetry over HTTP APIs for centralized monitoring.
+- **📡 Remote Command Management** — Enables dispatching commands, allowing devices to poll pending tasks and confirm execution.
+- **🐳 Dockerized Application Environment** — Includes Dockerfile and docker-compose configurations for running the backend and service dependencies in containers.
 
-## Architecture
+## 🎯 Use Cases
 
-```text
-┌────────────────────────┐
-│      ESP32 Device      │
-│   Sensors / Firmware   │
-└────────────┬───────────┘
-             │
-             │ HTTP + JSON
-             ▼
-┌────────────────────────┐
-│     Django Backend     │
-│                        │
-│  Device Verification   │
-│  Authentication        │
-│  Telemetry Ingestion   │
-│  Health Reporting      │
-│  Command Management    │
-└────────────┬───────────┘
-             │
-             ▼
-┌────────────────────────┐
-│    SQLite Database     │
-│                        │
-│  Device Records        │
-│  Telemetry             │
-│  Health Data           │
-│  Commands              │
-└────────────────────────┘
-             ▲
-             │
-┌────────────┴───────────┐
-│    Django Web App      │
-│ Device Management and  │
-│ Monitoring Interface   │
-└────────────────────────┘
-```
+- Ingesting sensor telemetry and operational data from ESP32 microcontrollers over HTTP.
+- Tracking uptime and connection health across a fleet of remote hardware nodes.
+- Queuing and executing operational commands on field devices from a central web backend.
+- Prototyping and experimenting with custom IoT backend architectures using Django.
 
-This diagram illustrates the project's main communication flow. The exact behavior depends on the implemented API and application configuration.
+## 📸 Screenshots
 
-## Project Structure
+![API Workflow](Demo_images/API_Workflow.png)
 
-```text
-IoTMag-Iot-Device-Managemnet-and-Control/
-│
-├── core/                 # Core application
-├── device/               # Device-related functionality
-├── IotMag/               # Django project configuration
-├── Demo_images/          # Screenshots and project visuals
-│
-├── .dockerignore         # Docker build exclusions
-├── .gitignore            # Git exclusions
-├── Dockerfile             # Docker image configuration
-├── LICENSE                # Apache License 2.0
-├── CODE_OF_CONDUCT.md     # Community guidelines
-├── CONTRIBUTING.md        # Contribution instructions
-├── manage.py              # Django management utility
-├── requirements.txt       # Python dependencies
-└── README.md              # Project documentation
-```
+![All Commands](Demo_images/All_Commands.png)
 
-## Getting Started
+![Dashboard](Demo_images/Dashboard.png)
 
-### Prerequisites
+![Overview](Demo_images/Overview.png)
 
-- Python compatible with `requirements.txt`
-- pip
-- Git
-- Docker Desktop (for containerized execution)
+![device config1](Demo_images/device_config1.png)
 
-### Option 1: Run Locally
+![device config2](Demo_images/device_config2.png)
 
-**1. Clone the repository**
+## 🛠️ Tech Stack
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+
+## 🏗️ Architecture
+
+A high-level view of how the main pieces fit together:
+
+## ⚡ Quick Start
 
 ```bash
+
+# 1. Clone the repository
 git clone https://github.com/httpsanjay/IoTMag-Iot-Device-Managemnet-and-Control.git
-cd IoTMag-Iot-Device-Managemnet-and-Control
+
+# 2. Create & activate a virtualenv
+python -m venv venv && source venv/bin/activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
 ```
 
-The main repository is private, so GitHub access permissions are required.
+## 📦 Key Dependencies
 
-**2. Create a virtual environment**
-
-Windows PowerShell:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+```
+Django: 6.0.1
+django-environ: 0.13.0
+django-redis: 6.0.0
+djangorestframework: 3.16.1
+psycopg2-binary: 2.9.11
+redis: 8.0.0
+httpx: 0.28.1
+gunicorn: 25.1.0
 ```
 
-**3. Install dependencies**
+## 📁 Project Structure
 
+```
+.
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── Demo_images
+│   ├── API_Workflow.png
+│   ├── All_Commands.png
+│   ├── Dashboard.png
+│   ├── Overview.png
+│   ├── device_config1.png
+│   ├── device_config2.png
+│   ├── index.png
+│   ├── login.png
+│   └── telemetry.png
+├── Dockerfile
+├── IotMag
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── LICENSE
+├── core
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── backends
+│   │   └── email_backend.py
+│   ├── helper.py
+│   ├── migrations
+│   │   ├── 0001_initial.py
+│   │   └── __init__.py
+│   ├── models.py
+│   ├── templates
+│   │   ├── account_settings.html
+│   │   ├── all_commands.html
+│   │   ├── api_docs.html
+│   │   ├── base.html
+│   │   ├── dashboard.html
+│   │   ├── device_config.html
+│   │   ├── error.html
+│   │   ├── firmware_upload.html
+│   │   ├── group_list.html
+│   │   ├── index.html
+│   │   ├── login.html
+│   │   ├── password_reset.html
+│   │   ├── signup.html
+│   │   └── telemetry_page.html
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── device
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations
+│   │   ├── 0001_initial.py
+│   │   ├── 0002_device_last_seen.py
+│   │   ├── 0003_device_is_online.py
+│   │   ├── 0004_remove_device_is_online_remove_device_last_seen.py
+│   │   ├── 0005_device_last_seen.py
+│   │   ├── 0006_alter_command_command_id.py
+│   │   ├── 0007_firmware_device_device_type_device_hardware_version_and_more.py
+│   │   ├── 0008_devicefirmware_created_at.py
+│   │   ├── 0009_alter_device_access_token.py
+│   │   ├── 0010_devicegroup_device_group.py
+│   │   ├── 0011_devicegroup_number_of_devices.py
+│   │   ├── 0012_remove_devicegroup_number_of_devices.py
+│   │   └── __init__.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── docker-compose.yml
+├── images
+│   ├── API_Workflow.png
+│   ├── All_Commands.png
+│   ├── Dashboard.png
+│   ├── Overview.png
+│   ├── device_config1.png
+│   ├── device_config2.png
+│   ├── index.png
+│   ├── login.png
+│   └── telemetry.png
+├── manage.py
+└── requirements.txt
+```
+
+## 🛠️ Development Setup
+
+### Python
+1. Install Python (v3.10+ recommended)
+2. `python -m venv venv && source venv/bin/activate`  (Windows: `venv\Scripts\activate`)
+3. `pip install -r requirements.txt`
+
+### Docker
+1. `docker build -t my-app .`
+2. `docker run -p 3000:3000 my-app`
+
+## 🚢 Deployment
+
+### Docker
 ```bash
-python -m pip install -r requirements.txt
+docker build -t iotmag-iot-device-managemnet-and-control .
+docker run -p 3000:3000 iotmag-iot-device-managemnet-and-control
 ```
 
-**4. Apply database migrations**
-
+### Docker Compose
 ```bash
-python manage.py migrate
+docker compose up -d
 ```
 
-**5. Start the development server**
+## 👥 Contributors
 
-```bash
-python manage.py runserver
-```
+Thanks to everyone who has contributed to this project:
 
-Open http://127.0.0.1:8000/ in your browser.
+<p align="left">
+<a href="https://github.com/httpsanjay" title="httpsanjay"><img src="https://avatars.githubusercontent.com/u/260210471?v=4&s=64" width="64" height="64" alt="httpsanjay" style="border-radius:50%" /></a>
+</p>
 
-### Option 2: Run with Docker
+[See the full list of contributors →](https://github.com/httpsanjay/IoTMag-Iot-Device-Managemnet-and-Control/graphs/contributors)
 
-Docker support is configured in the project's `Dockerfile`.
+## 👥 Contributing
 
-**1. Build the image**
+Contributions are welcome! Here's the standard flow:
 
-Run from the project root:
+1. **Fork** the repository
+2. **Clone** your fork: `git clone https://github.com/httpsanjay/IoTMag-Iot-Device-Managemnet-and-Control.git`
+3. **Branch**: `git checkout -b feature/your-feature`
+4. **Commit**: `git commit -m 'feat: add some feature'`
+5. **Push**: `git push origin feature/your-feature`
+6. **Open** a pull request
 
-```bash
-docker build -t iot-mag .
-```
+Please follow the existing code style and include tests for new behavior where applicable.
 
-**2. Start the container**
+## 📜 License
 
-If your Docker configuration serves Django on port `8000`:
+This project is licensed under the **LICENSE** License.
 
-```bash
-docker run --rm -p 8000:8000 iot-mag
-```
+---
 
-Open http://localhost:8000/ in your browser.
+<div align="center">
 
-Use the port and startup configuration defined by your working Docker setup if they differ from these examples.
+[![Made with ReadmeBuddy](https://img.shields.io/badge/Made%20with-ReadmeBuddy-8B5CFF?style=for-the-badge&logo=markdown&logoColor=white)](https://readmebuddy.com)
 
-**Useful Docker commands**
+<sub>Generate beautiful READMEs in seconds → <a href="https://readmebuddy.com">readmebuddy.com</a></sub>
 
-```bash
-# List running containers
-docker ps
-
-# View all containers
-docker ps -a
-
-# View application logs
-docker logs <container_id>
-
-# Stop a running container
-docker stop <container_id>
-```
-
-**Database note:** SQLite stores data in a database file. If the database is stored inside a container, deleting that container may also remove its data unless the database file is stored in a persistent volume or mounted directory. Configure persistence appropriately for your deployment.
-
-## API Workflow
-
-IoT Mag uses HTTP requests to exchange data between devices and the backend.
-
-### 1. Verify a Device
-
-Send a `POST` request to `/verify/` with the device credentials.
-
-Example request:
-
-```http
-POST /verify/
-Content-Type: application/json
-```
-
-```json
-{
-  "device_id": "YOUR_DEVICE_ID",
-  "device_secret": "YOUR_DEVICE_SECRET"
-}
-```
-
-A successful verification returns an access token. Save it securely for subsequent requests.
-
-Example response:
-
-```json
-{
-  "success": true,
-  "message": "Device verified successfully",
-  "access_token": "YOUR_ACCESS_TOKEN"
-}
-```
-
-Use the actual field names and response format implemented by your backend.
-
-### 2. Authenticate Requests
-
-Include the device's access token in the `Authorization` header:
-
-```http
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
-
-Each device should use its own token. Never commit real tokens or device secrets to GitHub.
-
-### 3. Send Heartbeats and Device Data
-
-Once authenticated, a device can send periodic heartbeat requests and submit telemetry or health information to the corresponding API endpoints.
-
-This allows the backend to receive device updates and maintain records for monitoring.
-
-### 4. Retrieve and Execute Commands
-
-The backend provides command-related endpoints for creating commands, retrieving pending commands, marking commands as completed, and checking command status.
-
-A device can periodically poll for commands, execute supported operations, and report completion.
-
-## API Reference
-
-The following endpoints are documented in the public project README. Confirm the request payloads and response schemas against the current implementation before integrating a device.
-
-### Device APIs
-
-| Method | Endpoint | Purpose |
-|---|---|---|
-| `POST` | `/verify/` | Verify a device and obtain an access token |
-| `POST` | `/heartbeat/` | Submit a heartbeat |
-| `POST` | `/telemetry/` | Submit telemetry data |
-| `POST` | `/health/` | Submit device health information |
-
-### Command APIs
-
-| Method | Endpoint | Purpose |
-|---|---|---|
-| `POST` | `/command-create/` | Create a command |
-| `GET` | `/command-get/` | Retrieve pending commands |
-| `POST` | `/command-mark/` | Mark a command as completed |
-| `GET` | `/command-status/<command_id>/` | Retrieve command status |
-
-All endpoint paths are relative to your configured server address. The exact authentication requirements, query parameters, and request bodies should follow the current backend implementation.
-
-## Security Considerations
-
-IoT device management involves communicating with devices over a network. Follow these practices when developing or deploying IoT Mag:
-
-- Keep Django's secret key, device secrets, and access tokens out of source control.
-- Validate incoming HTTP requests and payloads.
-- Authenticate device requests and restrict privileged operations.
-- Use HTTPS when communicating over untrusted networks.
-- Set `DEBUG=False` and configure `ALLOWED_HOSTS` appropriately in production.
-- Protect the SQLite database file and any stored device credentials.
-- Avoid using real personal information in demonstrations or test environments.
-
-## Testing
-
-Run the Django test suite with:
-
-```bash
-python manage.py test
-```
-
-Recommended areas to test:
-
-- Device verification with valid and invalid credentials.
-- Authentication of protected API requests.
-- Valid and malformed heartbeat, telemetry, and health payloads.
-- Database persistence and error handling.
-- Command creation, retrieval, and completion.
-- HTTP failures and unavailable devices.
-- Application startup and database migrations in Docker.
-
-## Screenshots
-
-Project screenshots are maintained in the `Demo_images/` directory.
-
-Add screenshots here using the actual filenames, for example:
-
-```markdown
-![IoT Mag Dashboard](Demo_images/dashboard.png)
-```
-
-Recommended screenshots include the dashboard, device list, telemetry view, and command-management interface, where available.
-
-## Roadmap
-
-Potential future improvements include:
-
-- [ ] Expand automated API tests.
-- [ ] Improve device authentication and error handling.
-- [ ] Improve device availability and heartbeat monitoring.
-- [ ] Add clearer API documentation and ESP32 integration examples.
-- [ ] Improve telemetry visualization and analytics.
-- [ ] Strengthen production deployment and database persistence.
-- [ ] Improve logging and operational diagnostics.
-
-## Contributing
-
-Contributions, bug reports, and suggestions are welcome.
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes and follow the guidelines in [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
-
-## License
-
-This project is licensed under the **Apache License 2.0**. See [LICENSE](LICENSE) for the full license text.
-
-## Author
-
-**Sri Sanjay K**
-
-GitHub: [@httpsanjay](https://github.com/httpsanjay)
-
-## Acknowledgment
-
-IoT Mag is a learning-oriented project exploring backend development, embedded-device communication, HTTP APIs, and IoT device management.
-
-Feedback and constructive suggestions are welcome.
+</div>
