@@ -30,19 +30,19 @@ SECRET_KEY = '^6094tcyohbgu4=kzyh!3_8o^xhf7k#7#ht#j6jd)v*y4a&kzo'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'True'
+DEBUG = False
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS","127.0.0.1,localhost").split(",")
 AUTH_USER_MODEL = "core.User"
 
 
-EMAIL_BACKEND = 'core.backends.email_backend.UnverifiedEmailBackend'
-EMAIL_HOST = os.environ.get("EMAIL_HOST")
-EMAIL_PORT = os.environ.get("EMAIL_PORT") 
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
+# EMAIL_BACKEND = 'core.backends.email_backend.UnverifiedEmailBackend'
+# EMAIL_HOST = os.environ.get("EMAIL_HOST")
+# EMAIL_PORT = os.environ.get("EMAIL_PORT") 
+# EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")
+# EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+# EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+# DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
 
 
 CACHES = {
@@ -75,7 +75,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
     'rest_framework',
-    "drf_spectacular",
     'core',
     'device',
 ]
@@ -188,4 +187,15 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# 2. Force all incoming HTTP connections to redirect to HTTPS
+SECURE_SSL_REDIRECT = True
+
+# 3. Ensure cookies are only transmitted over encrypted HTTPS connections
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# 4. Enable HTTP Strict Transport Security (HSTS)
+# We use 3600 seconds (1 hour) as a safe initial testing period.
+SECURE_HSTS_SECONDS = 3600  
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True

@@ -1,20 +1,20 @@
 import uuid
 import secrets
 
-from django.shortcuts import render
+from django.shortcuts import render , get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.decorators import api_view, permission_classes
 from django.utils import timezone
 from .models import Command, Device, Telemetry, DeviceHealth, Firmware, DeviceFirmware
 
 import json
-from django.shortcuts import get_object_or_404
 
 from django.core.cache import cache
 from rest_framework.permissions import AllowAny 
+from django.db import IntegrityError, transaction
+
 
 
 # This is the redis helper function
@@ -32,7 +32,7 @@ def is_device_valid(device_id, access_token):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+
 #This verify the device ID and Device Secret and assigns an access token
 def device_verify(request):
     device_id = request.data.get("device_id")
@@ -59,7 +59,7 @@ def device_verify(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+
 #This verify the device ID and access token and stores the telemetry 
 def telemetry_data(request):
 
@@ -102,7 +102,7 @@ def telemetry_data(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+
 #The device will send the heartbeat in an interval
 def device_heartbeat(request):
 
@@ -143,13 +143,6 @@ def device_heartbeat(request):
 
 
 
-
-from django.db import IntegrityError, transaction
-from django.http import JsonResponse
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from device.models import Device, DeviceHealth
-
 def clean_numeric(value, expected_type=float):
     if value is None or value == "":
         return None
@@ -159,7 +152,7 @@ def clean_numeric(value, expected_type=float):
         return None
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+
 def device_health(request):
     device_id = request.data.get("device_id")
     access_token = request.data.get("access_token")
@@ -258,7 +251,7 @@ def deploy_firmware(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+
 #Updates the firmware status
 def firmware_status(request):
 
@@ -352,7 +345,7 @@ def command_create(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+
 #The device will fetch the pending commands
 def command_get(request):
 
@@ -402,7 +395,7 @@ def command_get(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+
 def command_mark(request):
     device_id = request.data.get("device_id")
     access_token = request.data.get("access_token")
@@ -455,7 +448,7 @@ def command_mark(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+
 def command_status(request, command_id):
 
     try:
