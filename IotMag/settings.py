@@ -188,7 +188,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # 2. Force all incoming HTTP connections to redirect to HTTPS
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 
 # 3. Ensure cookies are only transmitted over encrypted HTTPS connections
 SESSION_COOKIE_SECURE = True
