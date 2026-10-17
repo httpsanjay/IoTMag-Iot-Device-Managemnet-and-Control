@@ -159,11 +159,7 @@
     <a class="nav-item" onclick="show('heartbeat',this)">Heartbeat</a>
     <a class="nav-item" onclick="show('health',this)">Device Health</a>
   </div>
-  <div class="sidebar-group">
-    <h3>Firmware</h3>
-    <a class="nav-item" onclick="show('deploy',this)">Deploy Firmware</a>
-    <a class="nav-item" onclick="show('fw-status',this)">Firmware Status</a>
-  </div>
+
   <div class="sidebar-group">
     <h3>Commands</h3>
     <a class="nav-item" onclick="show('cmd-create',this)">Create Command</a>
@@ -316,58 +312,8 @@
   <pre class="code-block">{ "success": true, "message": "Device health logs stored successfully" }</pre>
 </div>
 
-<!-- DEPLOY FIRMWARE -->
-<div class="endpoint" id="ep-deploy">
-  <div class="ep-header">
-    <div class="badges"><span class="badge post">POST</span><span class="badge dashboard">Dashboard</span></div>
-    <div class="ep-title">Push a firmware update to a device</div>
-    <code class="path">/device/firmware/deploy/</code>
-    <p class="ep-desc">Triggered from the dashboard by a logged-in user. Queues an OTA firmware update for the target device.</p>
-  </div>
-  <div class="note auth-note" style="margin-bottom:1.25rem"><span class="note-icon">🔒</span><span>This endpoint requires a logged-in dashboard session — not a device token.</span></div>
-  <div class="section-label">Request Body</div>
-  <table class="field-table">
-    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
-    <tr><td class="fname">device_id</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>ID of the device to update</td></tr>
-    <tr><td class="fname">firmware_id</td><td class="ftype">integer</td><td><span class="req-tag required">Required</span></td><td>ID of the firmware version to deploy</td></tr>
-  </table>
-  <div class="section-label">Response</div>
-  <pre class="code-block">{
-  "success": true,
-  "message": "Firmware deployment queued",
-  "deployment_id": 42
-}</pre>
-  <div class="note"><span class="note-icon">ⓘ</span><span>A command with action <code>ota_update</code> is automatically created. The device handles the download and install, then reports back via Firmware Status.</span></div>
-</div>
 
-<!-- FIRMWARE STATUS -->
-<div class="endpoint" id="ep-fw-status">
-  <div class="ep-header">
-    <div class="badges"><span class="badge post">POST</span><span class="badge device">Device</span></div>
-    <div class="ep-title">Report firmware update result</div>
-    <code class="path">/device/firmware/status/</code>
-    <p class="ep-desc">After the device attempts a firmware update, it calls this to report the outcome. If status is <code>success</code>, the device's active firmware version is updated automatically.</p>
-  </div>
-  <div class="section-label">Request Body</div>
-  <table class="field-table">
-    <tr><th>Field</th><th>Type</th><th>Required</th><th>What it is</th></tr>
-    <tr><td class="fname">deployment_id</td><td class="ftype">integer</td><td><span class="req-tag required">Required</span></td><td>The ID from the Deploy Firmware response</td></tr>
-    <tr><td class="fname">status</td><td class="ftype">string</td><td><span class="req-tag required">Required</span></td><td>Current stage of the update — see valid values below</td></tr>
-  </table>
-  <div class="section-label">Valid Status Values</div>
-  <div class="status-grid">
-    <div class="status-pill f-pending"><div class="val">pending</div><div class="label">Queued, not started</div></div>
-    <div class="status-pill f-downloading"><div class="val">downloading</div><div class="label">Fetching firmware</div></div>
-    <div class="status-pill f-installing"><div class="val">installing</div><div class="label">Writing to flash</div></div>
-    <div class="status-pill f-success"><div class="val">success</div><div class="label">Update complete</div></div>
-    <div class="status-pill f-failed"><div class="val">failed</div><div class="label">Update failed</div></div>
-  </div>
-  <div class="section-label">Example Request</div>
-  <pre class="code-block">{ "deployment_id": 42, "status": "success" }</pre>
-  <div class="section-label">Response</div>
-  <pre class="code-block">{ "success": true }</pre>
-  <div class="note"><span class="note-icon">ⓘ</span><span>Call this multiple times to track progress — once for <code>downloading</code>, once for <code>installing</code>, once for <code>success</code>.</span></div>
-</div>
+
 
 <!-- COMMAND CREATE -->
 <div class="endpoint" id="ep-cmd-create">
@@ -504,14 +450,7 @@
     <div class="status-pill s-critical"><div class="val">critical</div><div class="label">Severe issue</div></div>
     <div class="status-pill s-unknown"><div class="val">unknown</div><div class="label">State unclear</div></div>
   </div>
-  <div class="section-label" style="margin-top:1.5rem">Firmware Status — used in Firmware Status endpoint</div>
-  <div class="status-grid">
-    <div class="status-pill f-pending"><div class="val">pending</div><div class="label">Queued</div></div>
-    <div class="status-pill f-downloading"><div class="val">downloading</div><div class="label">Fetching firmware</div></div>
-    <div class="status-pill f-installing"><div class="val">installing</div><div class="label">Writing to flash</div></div>
-    <div class="status-pill f-success"><div class="val">success</div><div class="label">Update complete</div></div>
-    <div class="status-pill f-failed"><div class="val">failed</div><div class="label">Update failed</div></div>
-  </div>
+
   <div class="section-label" style="margin-top:1.5rem">Command Status — returned by Command Status endpoint</div>
   <table class="field-table">
     <tr><th>Value</th><th>Meaning</th></tr>

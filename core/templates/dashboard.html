@@ -219,6 +219,7 @@
   .divider-v { width: 1px; background: #e5e7eb; }
 </style>
 
+
 <div class="dash-page">
 
   <!-- Page header -->
@@ -232,6 +233,7 @@
     </button>
   </div>
 
+  
   <!-- Stats -->
   <div class="dash-stats">
     <div class="dash-stat">
@@ -239,21 +241,21 @@
         <span class="dash-stat-label">Total devices</span>
         <div class="dash-stat-icon"><i class="ti ti-cpu"></i></div>
       </div>
-      <div class="dash-stat-value">{{ devices.count }}</div>
+      <div class="dash-stat-value" id="total-devices">{{ devices.count }}</div>
     </div>
     <div class="dash-stat">
       <div class="dash-stat-header">
         <span class="dash-stat-label">Online now</span>
         <div class="dash-stat-icon"><i class="ti ti-wifi"></i></div>
       </div>
-      <div class="dash-stat-value online">{{ online_count }}</div>
+      <div class="dash-stat-value online" id="online-count">{{ online_count }}</div>
     </div>
     <div class="dash-stat">
       <div class="dash-stat-header">
         <span class="dash-stat-label">Commands sent</span>
         <div class="dash-stat-icon"><i class="ti ti-terminal-2"></i></div>
       </div>
-      <div class="dash-stat-value">{{ commands.count }}</div>
+      <div class="dash-stat-value" id="commands-count">{{ commands.count }}</div>
     </div>
     <div class="dash-stat">
       <div class="dash-stat-header">
@@ -283,28 +285,30 @@
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="device-table-body">
           {% for device in devices %}
-          <tr>
-            <td><strong>{{ device.device_name }}</strong></td>
+          <tr data-device-id="{{ device.device_id }}">
+            <td><strong class="device-name">{{ device.device_name }}</strong></td>
             <td><code>{{ device.device_id }}</code></td>
             <td><code>••••••••••</code></td>
             <td>
-              {% if device.status == "online" %}
-                <span class="badge badge-online"><span class="badge-dot"></span>Online</span>
-              {% elif device.status == "offline" %}
-                <span class="badge badge-offline"><span class="badge-dot"></span>Offline</span>
-              {% elif device.status == "warning" %}
-                <span class="badge badge-warning"><span class="badge-dot"></span>Warning</span>
-              {% elif device.status == "error" %}
-                <span class="badge badge-error"><span class="badge-dot"></span>Error</span>
-              {% elif device.status == "critical" %}
-                <span class="badge badge-critical"><span class="badge-dot"></span>Critical</span>
-              {% else %}
-                <span class="badge badge-unknown"><span class="badge-dot"></span>Unknown</span>
-              {% endif %}
+              <span class="device-status">
+                {% if device.status == "online" %}
+                  <span class="badge badge-online"><span class="badge-dot"></span>Online</span>
+                {% elif device.status == "offline" %}
+                  <span class="badge badge-offline"><span class="badge-dot"></span>Offline</span>
+                {% elif device.status == "warning" %}
+                  <span class="badge badge-warning"><span class="badge-dot"></span>Warning</span>
+                {% elif device.status == "error" %}
+                  <span class="badge badge-error"><span class="badge-dot"></span>Error</span>
+                {% elif device.status == "critical" %}
+                  <span class="badge badge-critical"><span class="badge-dot"></span>Critical</span>
+                {% else %}
+                  <span class="badge badge-unknown"><span class="badge-dot"></span>Unknown</span>
+                {% endif %}
+              </span>
             </td>
-            <td style="color:#888">{{ device.last_seen }}</td>
+            <td class="device-last-seen" style="color:#888">{{ device.last_seen }}</td>
             <td>
               <button type="button" class="btn btn-ghost btn-sm" onclick="openManage('{{ device.id }}')">
                 <i class="ti ti-settings"></i> Manage
@@ -386,7 +390,7 @@
             <th>Timestamp</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="recent-commands-body">
           {% for command in commands|slice:":5" %}
           <tr>
             <td><code>{{ command.command_id }}</code></td>
@@ -588,6 +592,109 @@
       document.body.removeChild(ta);
     }
   }
+
+  // Refresh dashboard data without reloading the whole page.
+  async function updateDashboard() {
+    try {
+      const response = await fetch("{% url 'dashboard_status_api' %}", {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Dashboard API returned ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const totalDevices = document.getElementById('total-devices');
+      const onlineCount = document.getElementById('online-count');
+      const commandsCount = document.getElementById('commands-count');
+
+      if (totalDevices) totalDevices.textContent = data.total_devices;
+      if (onlineCount) onlineCount.textContent = data.online_count;
+      if (commandsCount && data.total_commands !== undefined) {
+        commandsCount.textContent = data.total_commands;
+      }
+
+      // Update status and last-seen for rows already on the page.
+      document.querySelectorAll('#device-table-body tr[data-device-id]').forEach(row => {
+        const device = (data.devices || []).find(item => item.device_id === row.dataset.deviceId);
+        if (!device) return;
+
+        const statusCell = row.querySelector('.device-status');
+        const lastSeenCell = row.querySelector('.device-last-seen');
+
+        if (statusCell) {
+          const status = String(device.status || 'unknown').toLowerCase();
+          const validStatuses = ['online', 'offline', 'warning', 'error', 'critical'];
+          const safeStatus = validStatuses.includes(status) ? status : 'unknown';
+          const badge = document.createElement('span');
+          badge.className = `badge badge-${safeStatus}`;
+          const dot = document.createElement('span');
+          dot.className = 'badge-dot';
+          badge.appendChild(dot);
+          badge.appendChild(document.createTextNode(
+            safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1)
+          ));
+          statusCell.replaceChildren(badge);
+        }
+
+        if (lastSeenCell) lastSeenCell.textContent = device.last_seen || '—';
+      });
+
+      // Refresh the five most recent commands.
+      const commandsBody = document.getElementById('recent-commands-body');
+      if (commandsBody && Array.isArray(data.commands)) {
+        commandsBody.replaceChildren();
+
+        if (data.commands.length === 0) {
+          const row = document.createElement('tr');
+          const cell = document.createElement('td');
+          cell.colSpan = 5;
+          cell.style.cssText = 'text-align:center;color:#9ca3af;padding:1.75rem';
+          cell.textContent = 'No commands sent yet';
+          row.appendChild(cell);
+          commandsBody.appendChild(row);
+        } else {
+          data.commands.slice(0, 5).forEach(command => {
+            const row = document.createElement('tr');
+            const addCell = (value, useCode = false) => {
+              const cell = document.createElement('td');
+              const content = useCode ? document.createElement('code') : cell;
+              content.textContent = value == null || value === '' ? '—' : String(value);
+              if (useCode) cell.appendChild(content);
+              row.appendChild(cell);
+            };
+
+            addCell(command.command_id, true);
+            addCell(command.device_name);
+            addCell(command.command || command.multicommands, true);
+
+            const statusCell = document.createElement('td');
+            const status = String(command.command_status || 'failed').toLowerCase();
+            const validStatuses = ['pending', 'received', 'completed', 'failed'];
+            const safeStatus = validStatuses.includes(status) ? status : 'failed';
+            const badge = document.createElement('span');
+            badge.className = `cmd-badge cmd-${safeStatus}`;
+            badge.textContent = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
+            statusCell.appendChild(badge);
+            row.appendChild(statusCell);
+
+            const timestamp = command.timestamp ? new Date(command.timestamp).toLocaleString() : '—';
+            addCell(timestamp);
+            commandsBody.appendChild(row);
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Dashboard update failed:', error);
+    }
+  }
+
+  updateDashboard();
+  setInterval(updateDashboard, 2000);
 </script>
 
 {% endblock %}

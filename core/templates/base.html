@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="60">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IoTMag - Fleet Management</title>
 
@@ -151,11 +150,11 @@
     </a>
 
     <ul class="app-nav-links">
-      <li><a href="{% url 'home' %}"><i class="ti ti-home"></i> Home</a></li>
       <li><a href="{% url 'dashboard' %}"><i class="ti ti-layout-dashboard"></i> Dashboard</a></li>
       <li><a href="{% url 'telemetry_page' %}"><i class="ti ti-chart-line"></i> Telemetry</a></li>
       <li><a href="{% url 'all_commands' %}"><i class="ti ti-terminal-2"></i> Commands</a></li>
       <li><a href="{% url 'device_config' %}"><i class="ti ti-adjustments"></i> Device Config</a></li>
+      <li><a href="{% url 'group_list' %}"><i class="ti ti-folders"></i> Device Groups</a></li>
       <li><a href="{% url 'account_settings' %}"><i class="ti ti-settings"></i> Settings</a></li>
     </ul>
 
@@ -207,7 +206,7 @@
       <ul class="fm-footer-links">
         <li><a href="https://www.linkedin.com/in/srisanjayk/" target="_blank">LinkedIn</a></li>
         <li><a href="https://www.reddit.com/user/SriSanjayy/" target="_blank">Reddit</a></li>
-        <li><a href="iotmag_api_docs">Docs</a></li>
+        <li><a href="{% url 'api_doc_page' %}">Docs</a></li>
         <li><a href="mailto:sanjay2904sri@gmail.com">Contact</a></li>
       </ul>
     </div>

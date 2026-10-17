@@ -17,7 +17,7 @@
 </head>
 
 <style>
-  @import url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css")
+  @import url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css");
   @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap");
 
   *,
@@ -445,12 +445,11 @@
     <div class="settings-section-title"><i class="ti ti-cpu"></i> Devices</div>
     <div class="settings-device-stat">
       <div class="settings-device-stat-icon"><i class="ti ti-router"></i></div>
-      <div>
-        <div class="settings-device-stat-n">{{ devices.count }}</div>
-        <div class="settings-device-stat-l">
-          Device{{ devices.count|pluralize }} registered to your account
-        </div>
-      </div>
+  <div>
+  <div class="settings-device-stat-n">{{ devices|length }}</div>
+  <div class="settings-device-stat-l"> Device registered to your account </div>
+</div>
+
     </div>
   </div>
 

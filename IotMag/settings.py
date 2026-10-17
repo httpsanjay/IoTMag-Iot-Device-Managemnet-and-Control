@@ -26,11 +26,11 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = '^6094tcyohbgu4=kzyh!3_8o^xhf7k#7#ht#j6jd)v*y4a&kzo'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = DEBUG = os.environ.get("DEBUG","False").lower() == "true"
+DEBUG = 'True'
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS","127.0.0.1,localhost").split(",")
 AUTH_USER_MODEL = "core.User"

@@ -25,7 +25,8 @@ from device.models import (
     DeviceGroup
 )
 from django.views.decorators.cache import cache_page
-from core.helper import welcome_email, password_reset_mail
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 from django.core.mail import send_mail
 
 User = get_user_model()
@@ -90,7 +91,7 @@ def signup(request):
             first_name=name,
             password=password
         )
-        welcome_email(request,email,username)
+        #welcome_email(request,email,username)
 
         login(request, user)
         messages.success(request,f"Hlo, {user.username}!")
@@ -102,7 +103,202 @@ def signup(request):
 
 
 def api_doc_page(request):
-    return render(request, "iotmag_api_docs.html")
+    return render(request, "api_docs.html")
+
+
+@login_required
+@require_GET
+def dashboard_status_api(request):
+    devices = Device.objects.filter(
+        owner=request.user
+    ).order_by("device_name")
+
+    commands = (
+        Command.objects
+        .filter(device__owner=request.user)
+        .select_related("device")
+        .order_by("-timestamp")[:10]
+    )
+
+    allowed_statuses = ["online", "critical", "error", "warning"]
+    online_count = devices.filter(
+        status__in=allowed_statuses
+    ).count()
+
+    device_data = [
+        {
+            "device_id": device.device_id,
+            "device_name": device.device_name,
+            "status": device.status,
+            "is_online": device.is_online,
+        }
+        for device in devices
+    ]
+
+    command_data = [
+        {
+            "command_id": command.command_id,
+            "device_id": command.device.device_id,
+            "device_name": command.device.device_name,
+            "command": command.command,
+            "command_status": command.command_status,
+            "timestamp": command.timestamp.isoformat(),
+        }
+        for command in commands
+    ]
+
+    return JsonResponse({
+        "total_devices": devices.count(),
+        "online_count": online_count,
+        "devices": device_data,
+        "commands": command_data,
+    })
+
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_GET
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
+from device.models import (
+    Device, Telemetry, Command, DeviceHealth, DeviceFirmware
+)
+
+
+@login_required
+@require_GET
+def telemetry_live_api(request):
+    device_id = request.GET.get("device_id")
+
+    device = get_object_or_404(
+        Device, device_id=device_id, owner=request.user
+    )
+
+    entries = list(
+        Telemetry.objects.filter(device=device)
+        .order_by("-timestamp")[:50]
+    )
+
+    return JsonResponse({
+        "device": {
+            "device_id": device.device_id,
+            "device_name": device.device_name,
+            "status": device.status,
+            "last_seen": (
+                device.last_seen.isoformat()
+                if device.last_seen else None
+            ),
+            "uptime": getattr(device, "uptime", None),
+        },
+        "telemetry": [
+            {
+                "timestamp": entry.timestamp.isoformat(),
+                "data": entry.data,
+            }
+            for entry in entries
+        ],
+    })
+
+
+@login_required
+@require_GET
+def commands_live_api(request):
+    commands = (
+        Command.objects
+        .filter(device__owner=request.user)
+        .select_related("device")
+        .order_by("-timestamp")
+    )
+
+    counts = {
+        "total": commands.count(),
+        "completed": commands.filter(command_status="completed").count(),
+        "pending": commands.filter(command_status="pending").count(),
+        "received": commands.filter(command_status="received").count(),
+        "failed": commands.filter(command_status="failed").count(),
+    }
+
+    return JsonResponse({
+        "counts": counts,
+        "commands": [
+            {
+                "command_id": str(cmd.command_id),
+                "device_name": cmd.device.device_name,
+                "command": cmd.command or cmd.multicommands or "",
+                "command_status": cmd.command_status,
+                "timestamp": (
+                    cmd.timestamp.isoformat()
+                    if cmd.timestamp else None
+                ),
+            }
+            for cmd in commands[:100]
+        ],
+    })
+
+
+@login_required
+@require_GET
+def device_config_live_api(request):
+    device_id = request.GET.get("device_id")
+
+    device = get_object_or_404(
+        Device, device_id=device_id, owner=request.user
+    )
+
+    health_obj = DeviceHealth.objects.filter(device=device).first()
+
+    health = None
+    if health_obj:
+        health = {
+            "cpu_usage": health_obj.cpu_usage,
+            "memory_usage": health_obj.memory_usage,
+            "storage_usage": health_obj.storage_usage,
+            "temperature": health_obj.temperature,
+            "battery_percentage": health_obj.battery_percentage,
+            "rssi": health_obj.rssi,
+            "updated_at": (
+                health_obj.updated_at.isoformat()
+                if health_obj.updated_at else None
+            ),
+        }
+
+    recent_commands = (
+        Command.objects.filter(device=device)
+        .order_by("-timestamp")[:10]
+    )
+
+    return JsonResponse({
+        "device": {
+            "device_id": device.device_id,
+            "device_name": device.device_name,
+            "status": device.status,
+            "purpose": device.purpose,
+            "device_type": device.device_type,
+            "manufacturer": device.manufacturer,
+            "hardware_version": device.hardware_version,
+            "ip_address": device.ip_address,
+            "mac_address": device.mac_address,
+            "last_seen": (
+                device.last_seen.isoformat()
+                if device.last_seen else None
+            ),
+            "uptime": getattr(device, "uptime", None),
+        },
+        "health": health,
+        "commands": [
+            {
+                "command_id": str(cmd.command_id),
+                "command": cmd.command or cmd.multicommands or "",
+                "command_status": cmd.command_status,
+                "timestamp": (
+                    cmd.timestamp.isoformat()
+                    if cmd.timestamp else None
+                ),
+            }
+            for cmd in recent_commands
+        ],
+    })
 
 
 @login_required
@@ -234,7 +430,9 @@ def account_settings(request):
 
         return redirect("account_settings")
 
-    return render(request, "account_settings.html")
+    return render(request, "account_settings.html", {
+        'devices': Device.objects.filter(owner=request.user).order_by("device_name")
+    })
 
 def password_reset(request):
     if request.method == "POST":
@@ -246,30 +444,30 @@ def password_reset(request):
             user.set_password(temp_password)
             user.save()
 
-            message_content = (
-                "Hello,\n\n"
-                "We received a request to reset your password for your IOT_MAG account.\n"
-                f"Your temporary password is: {temp_password}\n\n"
-                "Please log in using this temporary password and change it immediately "
-                "from your account dashboard settings.\n\n"
-                "Best regards,\n"
-                "IoT_MAG Team"
-            )
+            # message_content = (
+            #     "Hello,\n\n"
+            #     "We received a request to reset your password for your IOT_MAG account.\n"
+            #     f"Your temporary password is: {temp_password}\n\n"
+            #     "Please log in using this temporary password and change it immediately "
+            #     "from your account dashboard settings.\n\n"
+            #     "Best regards,\n"
+            #     "IoT_MAG Team"
+            # )
 
 
-            send_mail(
-                subject="Your IOT_MAG Password Reset Request",
-                message=message_content,
-                from_email=os.environ.get("FROM_EMAIL"),
-                recipient_list=[email],
-                fail_silently=False,
-            )
+            # send_mail(
+            #     subject="Your IOT_MAG Password Reset Request",
+            #     message=message_content,
+            #     from_email=os.environ.get("FROM_EMAIL"),
+            #     recipient_list=[email],
+            #     fail_silently=False,
+            # )
             
-            messages.success(request, "A temporary password has been sent to your email inbox.")
-            return redirect("login")
-        else:
-            messages.error(request, "No account found matching that email address.")
-            return redirect("password_reset")
+        #     messages.success(request, "A temporary password has been sent to your email inbox.")
+        #     return redirect("login")
+        # else:
+        #     messages.error(request, "No account found matching that email address.")
+        #     return redirect("password_reset")
   
     return render(request, 'password_reset.html')
 

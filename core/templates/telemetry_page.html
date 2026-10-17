@@ -242,54 +242,243 @@
 </div>
 
 <!-- Chart rendering from Django template data -->
+
 <script>
-  const telemetryData = {{ telemetry_json|safe }};
-  // telemetry_json should be passed from view as:
-  // json.dumps([{"timestamp": str(t.timestamp), "data": t.data} for t in telemetry_list])
+document.addEventListener("DOMContentLoaded", function () {
+    const selectedDeviceId = new URLSearchParams(
+        window.location.search
+    ).get("device_id");
 
-  if (telemetryData && telemetryData.length > 0) {
-    // Find a numeric key to chart (first numeric field in data)
-    const firstEntry = telemetryData[0].data;
-    const chartKey = Object.keys(firstEntry).find(k => typeof firstEntry[k] === 'number') || null;
+    const apiUrl = "{% url 'telemetry_live_api' %}";
 
-    if (chartKey) {
-      const values = telemetryData.map(t => t.data[chartKey] ?? 0);
-      const min = Math.min(...values) * 0.95;
-      const max = Math.max(...values) * 1.05;
-      const range = max - min || 1;
+    const statusEl = document.getElementById("tlDeviceStatus");
+    const lastSeenEl = document.getElementById("tlLastSeen");
+    const uptimeEl = document.getElementById("tlUptime");
+    const readingsGrid = document.getElementById("tlReadingsGrid");
+    const telemetryBody = document.getElementById("tlTelemetryBody");
+    const entryCountEl = document.getElementById("tlEntryCount");
+    const liveStatusEl = document.getElementById("tlLiveStatus");
 
-      // Y-axis
-      const yAxis = document.getElementById('tlYAxis');
-      if (yAxis) {
-        [max, (max+min)/2, min].forEach(v => {
-          const s = document.createElement('span');
-          s.textContent = v.toFixed(1);
-          yAxis.appendChild(s);
-        });
-      }
-
-      // Bars
-      const chartArea = document.getElementById('tlChartArea');
-      const chartLabels = document.getElementById('tlChartLabels');
-      if (chartArea) {
-        [...telemetryData].reverse().forEach(t => {
-          const val = t.data[chartKey] ?? 0;
-          const pct = ((val - min) / range) * 100;
-          const bar = document.createElement('div');
-          bar.className = 'tl-bar';
-          bar.style.height = pct + '%';
-          bar.innerHTML = `<div class="tl-bar-tip">${chartKey}: ${val}<br>${t.timestamp.slice(11,16)}</div>`;
-          chartArea.appendChild(bar);
-
-          if (chartLabels) {
-            const lbl = document.createElement('span');
-            lbl.textContent = t.timestamp.slice(11, 16);
-            chartLabels.appendChild(lbl);
-          }
-        });
-      }
+    if (!selectedDeviceId) {
+        if (liveStatusEl) {
+            liveStatusEl.textContent = "Select a device to view live telemetry.";
+        }
+        return;
     }
-  }
+
+    function formatDate(value) {
+        if (!value) return "—";
+
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+            ? value
+            : date.toLocaleString();
+    }
+
+    function formatValue(value) {
+        if (value === null || value === undefined || value === "") {
+            return "—";
+        }
+
+        if (typeof value === "object") {
+            return JSON.stringify(value);
+        }
+
+        return String(value);
+    }
+
+    function addCell(row, value) {
+        const cell = document.createElement("td");
+        cell.textContent = formatValue(value);
+        row.appendChild(cell);
+    }
+
+    function renderReadings(data) {
+        if (!readingsGrid) return;
+
+        readingsGrid.replaceChildren();
+
+        const latest = data.length ? data[0].data : {};
+
+        if (!latest || typeof latest !== "object") {
+            readingsGrid.textContent = "No telemetry readings available.";
+            return;
+        }
+
+        const entries = Object.entries(latest);
+
+        if (!entries.length) {
+            readingsGrid.textContent = "No telemetry readings available.";
+            return;
+        }
+
+        entries.forEach(([key, value]) => {
+            const card = document.createElement("div");
+            const label = document.createElement("div");
+            const reading = document.createElement("div");
+
+            label.textContent = key.replaceAll("_", " ");
+            reading.textContent = formatValue(value);
+
+            card.append(label, reading);
+            readingsGrid.appendChild(card);
+        });
+    }
+
+    function renderTelemetryTable(data) {
+        if (!telemetryBody) return;
+
+        telemetryBody.replaceChildren();
+
+        data.forEach(entry => {
+            const row = document.createElement("tr");
+
+            addCell(row, formatDate(entry.timestamp));
+
+            const values = entry.data || {};
+            addCell(row, JSON.stringify(values));
+
+            telemetryBody.appendChild(row);
+        });
+
+        if (entryCountEl) {
+            entryCountEl.textContent = String(data.length);
+        }
+    }
+
+    function renderChart(data) {
+        const chartArea = document.getElementById("tlChartArea");
+        const yAxis = document.getElementById("tlYAxis");
+        const labels = document.getElementById("tlChartLabels");
+
+        if (!chartArea || !yAxis || !labels) return;
+
+        chartArea.replaceChildren();
+        yAxis.replaceChildren();
+        labels.replaceChildren();
+
+        const chronological = [...data].reverse();
+
+        const numericKey = Object.keys(
+            chronological[0]?.data || {}
+        ).find(key =>
+            chronological.some(entry =>
+                typeof entry.data?.[key] === "number"
+            )
+        );
+
+        if (!numericKey) {
+            chartArea.textContent = "No numeric telemetry data available.";
+            return;
+        }
+
+        const points = chronological
+            .map(entry => ({
+                timestamp: entry.timestamp,
+                value: entry.data?.[numericKey]
+            }))
+            .filter(point => typeof point.value === "number");
+
+        if (!points.length) return;
+
+        const values = points.map(point => point.value);
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const range = max - min || 1;
+
+        // Use the existing chart containers; no page reload.
+        chartArea.style.position = "relative";
+        chartArea.style.display = "flex";
+        chartArea.style.alignItems = "flex-end";
+        chartArea.style.gap = "4px";
+
+        points.forEach(point => {
+            const bar = document.createElement("div");
+            const height = max === min
+                ? 50
+                : 10 + ((point.value - min) / range) * 90;
+
+            bar.style.height = height + "%";
+            bar.style.flex = "1";
+            bar.style.minWidth = "3px";
+            bar.style.background = "#7c3aed";
+            bar.style.borderRadius = "4px 4px 0 0";
+            bar.title = `${numericKey}: ${point.value}`;
+
+            chartArea.appendChild(bar);
+        });
+
+        [max, (max + min) / 2, min].forEach(value => {
+            const label = document.createElement("span");
+            label.textContent = Number(value.toFixed(2)).toString();
+            yAxis.appendChild(label);
+        });
+
+        const firstLabel = document.createElement("span");
+        firstLabel.textContent = formatDate(points[0].timestamp);
+
+        const lastLabel = document.createElement("span");
+        lastLabel.textContent = formatDate(
+            points[points.length - 1].timestamp
+        );
+
+        labels.append(firstLabel, lastLabel);
+    }
+
+    async function updateTelemetry() {
+        try {
+            const url = new URL(apiUrl, window.location.origin);
+            url.searchParams.set("device_id", selectedDeviceId);
+
+            const response = await fetch(url, {
+                method: "GET",
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+                credentials: "same-origin",
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const device = result.device || {};
+            const telemetry = result.telemetry || [];
+
+            if (statusEl) {
+                statusEl.textContent = device.status || "Unknown";
+            }
+
+            if (lastSeenEl) {
+                lastSeenEl.textContent = formatDate(device.last_seen);
+            }
+
+            if (uptimeEl) {
+                uptimeEl.textContent = formatValue(device.uptime);
+            }
+
+            renderReadings(telemetry);
+            renderTelemetryTable(telemetry);
+            renderChart(telemetry);
+
+            if (liveStatusEl) {
+                liveStatusEl.textContent =
+                    "Live · Updated " + new Date().toLocaleTimeString();
+            }
+        } catch (error) {
+            console.error("Telemetry update failed:", error);
+
+            if (liveStatusEl) {
+                liveStatusEl.textContent =
+                    "Unable to update telemetry. Retrying...";
+            }
+        }
+    }
+
+    updateTelemetry();
+    setInterval(updateTelemetry, 2000);
+});
 </script>
+
 
 {% endblock %}

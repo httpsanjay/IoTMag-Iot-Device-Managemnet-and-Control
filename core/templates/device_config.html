@@ -208,10 +208,7 @@
         </div>
         <span class="dc-health-val">{{ h.rssi }} dBm</span>
       </div>
-      <div class="dc-health-row">
-        <span class="dc-health-label">Uptime</span>
-        <span class="dc-health-val" style="min-width:auto;">{{ h.uptime }}</span>
-      </div>
+      
       <div class="dc-health-row">
         <span class="dc-health-label">Updated</span>
         <span class="dc-health-val" style="min-width:auto;">{{ h.updated_at }}</span>
@@ -267,42 +264,7 @@
         </div>
       </form>
 
-      <div class="dc-inner-title"><i class="ti ti-circuit-board"></i> OTA firmware update</div>
-      <form method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="device_id" value="{{ device.device_id }}">
-        <div class="dc-field">
-          <label>Select firmware version</label>
-          <div class="dc-cmd-row">
-            <select name="firmware_id" style="flex:1;padding:7px 10px;font-size:12px;font-family:'Inter',sans-serif;border:0.5px solid #e5e7eb;border-radius:7px;background:#fff;color:#111;outline:none;">
-              {% for firmware in firmwares %}
-              <option value="{{ firmware.id }}">{{ firmware.version }}</option>
-              {% endfor %}
-            </select>
-            <button type="submit" name="action" value="ota_update" class="btn btn-blue">
-              <i class="ti ti-rocket"></i> Deploy
-            </button>
-          </div>
-        </div>
-          <p>
-        <label>Version</label><br>
-        <input type="text" name="version">
-    </p>
-
-    <p>
-        <label>Firmware File (.bin)</label><br>
-        <input type="file" name="firmware_file">
-    </p>
-
-    <p>
-        <label>Release Notes</label><br>
-        <textarea name="release_notes"></textarea>
-    </p>
-
-    <button type="submit">
-        Upload Firmware
-    </button>
-      </form>
+      
     </div>
 
   </div>
@@ -363,7 +325,7 @@
             <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">{{ dep.updated_at }}</td>
           </tr>
           {% empty %}
-          <tr><td colspan="3" style="text-align:center;color:#888;padding:1rem;">No firmware history</td></tr>
+          <tr><td colspan="3" style="text-align:center;color:#888;padding:1rem;">Coming soon</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -408,5 +370,174 @@
   {% endif %}
 
 </div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const selectedDeviceId = "{{ device.device_id|escapejs }}";
+    const apiUrl = "{% url 'device_config_live_api' %}";
+
+    if (!selectedDeviceId) return;
+
+    let isUpdating = false;
+
+    function setText(id, value, suffix = "") {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent =
+                value === null || value === undefined || value === ""
+                    ? "—"
+                    : `${value}${suffix}`;
+        }
+    }
+
+    function setBar(id, value, max = 100) {
+        const element = document.getElementById(id);
+        if (!element) return;
+
+        const number = Number(value);
+        if (value === null || value === undefined || value === "" ||
+            !Number.isFinite(number)) {
+            element.style.width = "0%";
+            return;
+        }
+
+        const percentage = Math.max(0, Math.min(100, (number / max) * 100));
+        element.style.width = percentage + "%";
+    }
+
+    function formatDate(value) {
+        if (!value) return "—";
+
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+            ? value
+            : date.toLocaleString();
+    }
+
+    function updateStatus(status) {
+        const element = document.getElementById("dcDeviceStatus");
+        if (!element) return;
+
+        const value = status || "unknown";
+        element.textContent = value;
+        element.classList.remove(
+            "badge-online",
+            "badge-offline",
+            "badge-error",
+            "badge-warning",
+            "badge-critical"
+        );
+
+        const allowed = [
+            "online", "offline", "error", "warning", "critical"
+        ];
+
+        element.classList.add(
+            "badge-" + (allowed.includes(value.toLowerCase())
+                ? value.toLowerCase()
+                : "offline")
+        );
+    }
+
+    function renderRecentCommands(commands) {
+        const tbody = document.getElementById("dcRecentCommandsBody");
+        if (!tbody) return;
+
+        tbody.replaceChildren();
+
+        if (!commands || commands.length === 0) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.colSpan = 4;
+            cell.textContent = "No recent commands.";
+            row.appendChild(cell);
+            tbody.appendChild(row);
+            return;
+        }
+
+        commands.forEach(command => {
+            const row = document.createElement("tr");
+
+            const values = [
+                command.command_id,
+                command.command,
+                command.command_status,
+                formatDate(command.timestamp)
+            ];
+
+            values.forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent =
+                    value === null || value === undefined ? "—" : value;
+                row.appendChild(cell);
+            });
+
+            tbody.appendChild(row);
+        });
+    }
+
+    async function updateDeviceConfig() {
+        if (isUpdating) return;
+        isUpdating = true;
+
+        try {
+            const url = new URL(apiUrl, window.location.origin);
+            url.searchParams.set("device_id", selectedDeviceId);
+
+            const response = await fetch(url, {
+                method: "GET",
+                credentials: "same-origin",
+                cache: "no-store",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("API returned HTTP " + response.status);
+            }
+
+            const result = await response.json();
+            const device = result.device || {};
+            const health = result.health || {};
+
+            // Device information
+            updateStatus(device.status);
+            setText("dcLastSeen", formatDate(device.last_seen));
+
+            // Health metrics
+            setText("dcCpuUsage", health.cpu_usage, "%");
+            setText("dcMemoryUsage", health.memory_usage, "%");
+            setText("dcStorageUsage", health.storage_usage, "%");
+            setText("dcTemperature", health.temperature, "°C");
+            setText("dcBattery", health.battery_percentage, "%");
+            setText("dcRssi", health.rssi, " dBm");
+            setText("dcHealthUpdated", formatDate(health.updated_at));
+
+            // Health bars
+            setBar("dcCpuBar", health.cpu_usage);
+            setBar("dcMemoryBar", health.memory_usage);
+            setBar("dcStorageBar", health.storage_usage);
+            setBar("dcBatteryBar", health.battery_percentage);
+
+            // Assumes the temperature bar uses a 0–100°C scale.
+            setBar("dcTemperatureBar", health.temperature, 100);
+
+            // Recent command log
+            renderRecentCommands(result.commands);
+
+        } catch (error) {
+            console.error("Device configuration live update failed:", error);
+        } finally {
+            isUpdating = false;
+        }
+    }
+
+    updateDeviceConfig();
+    setInterval(updateDeviceConfig, 2000);
+});
+</script>
+
 
 {% endblock %}

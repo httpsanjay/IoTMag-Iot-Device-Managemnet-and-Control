@@ -144,8 +144,13 @@ def device_heartbeat(request):
 
 
 
+from django.db import IntegrityError, transaction
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from device.models import Device, DeviceHealth
+
 def clean_numeric(value, expected_type=float):
-    # Safely converts an input value to float or int, returning None if invalid or missing
     if value is None or value == "":
         return None
     try:
@@ -171,26 +176,30 @@ def device_health(request):
             "message": "Invalid device credentials"
         }, status=401)
 
-
-    cpu_usage = clean_numeric(request.data.get("cpu_usage"), float)
-    memory_usage = clean_numeric(request.data.get("memory_usage"), float)
-    storage_usage = clean_numeric(request.data.get("storage_usage"), float)
-    temperature = clean_numeric(request.data.get("temperature"), float)
-    battery_percentage = clean_numeric(request.data.get("battery_percentage"), int)
-    rssi = clean_numeric(request.data.get("rssi"), int)
+    # Clean the input telemetry data
+    health_data = {
+        "cpu_usage": clean_numeric(request.data.get("cpu_usage"), float),
+        "memory_usage": clean_numeric(request.data.get("memory_usage"), float),
+        "storage_usage": clean_numeric(request.data.get("storage_usage"), float),
+        "temperature": clean_numeric(request.data.get("temperature"), float),
+        "battery_percentage": clean_numeric(request.data.get("battery_percentage"), int),
+        "rssi": clean_numeric(request.data.get("rssi"), int),
+    }
 
     try:
         device = Device.objects.only("id").get(device_id=device_id)
-        #used update_or_create to avoid duplicate entries and update the existing entry
-        DeviceHealth.objects.update_or_create(
-            device=device,
-            cpu_usage=cpu_usage,
-            memory_usage=memory_usage,
-            storage_usage=storage_usage,
-            temperature=temperature,
-            battery_percentage=battery_percentage,
-            rssi=rssi
-        )
+        
+        # 1. Wrap in atomic block to enforce clean transaction rollback on SQLite
+        try:
+            with transaction.atomic():
+                # Only look up by 'device'. Put fluctuating telemetry inside 'defaults'.
+                DeviceHealth.objects.update_or_create(
+                    device=device,
+                    defaults=health_data
+                )
+        except IntegrityError:
+            # 2. Fallback: If a concurrent request created it simultaneously, catch it & update
+            DeviceHealth.objects.filter(device=device).update(**health_data)
 
         return JsonResponse({
             "success": True,
@@ -202,6 +211,8 @@ def device_health(request):
             "success": False,
             "message": "Invalid device credentials"
         }, status=401)
+
+
     
 
 
@@ -392,52 +403,55 @@ def command_get(request):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-#The device will mark the command as completed once it has been executed, also updates if it fails
 def command_mark(request):
-
     device_id = request.data.get("device_id")
     access_token = request.data.get("access_token")
     command_id = request.data.get("command_id")
+    command_status = request.data.get("command_status")
 
-    if not device_id or not access_token or not command_id:
+    if not device_id or not access_token or not command_id or not command_status:
         return JsonResponse({
             "success": False,
-            "message": "device_id, access_token and command_id are required"
+            "message": "device_id, access_token, command_id and command_status are required"
+        }, status=400)
+
+    VALID_STATUSES = ["completed", "failed", "received"]
+    if command_status not in VALID_STATUSES:
+        return JsonResponse({
+            "success": False,
+            "message": f"Invalid status value. Must be one of: {', '.join(VALID_STATUSES)}"
         }, status=400)
 
     try:
+        device = Device.objects.get(device_id=device_id, access_token=access_token)
+        command = Command.objects.get(device=device, command_id=command_id)
 
-        device = Device.objects.get(device_id=device_id,access_token=access_token)
-        command = Command.objects.get(device=device,command_id=command_id)
-
-        # Optional safety check
-        if command.command_status != "received":
+        if command.command_status == "completed":
             return JsonResponse({
                 "success": False,
-                "message": f"Cannot complete command with status '{command.command_status}'"
+                "message": "Cannot modify a command that is already marked as completed"
             }, status=400)
 
-        command.command_status = "completed"
+        command.command_status = command_status
         command.save(update_fields=["command_status"])
 
         return JsonResponse({
             "success": True,
-            "message": "Command marked completed"
+            "message": f"Command status updated to '{command_status}' successfully"
         })
 
     except Device.DoesNotExist:
-
         return JsonResponse({
             "success": False,
             "message": "Invalid device credentials"
         }, status=401)
 
     except Command.DoesNotExist:
-
         return JsonResponse({
             "success": False,
             "message": "Command not found"
         }, status=404)
+
 
 
 @api_view(["GET"])
