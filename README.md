@@ -48,15 +48,29 @@ Configured for containerized deployment with Docker and Docker Compose, this sys
 
 ![API Workflow](Demo_images/API_Workflow.png)
 
-![All Commands](Demo_images/All_Commands.png)
+<table border="0" width="100%">
+  <tr>
+    <td align="center" width="50%">
+      <p><b>Dashboard</b></p>
+      <img src="Demo_images/Dashboard.png" alt="Dashboard" style="width:100%; max-width:400px;"/>
+    </td>
+    <td align="center" width="50%">
+      <p><b>All Commands</b></p>
+      <img src="Demo_images/All_Commands.png" alt="All Commands" style="width:100%; max-width:400px;"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <p><b>Device Config 1</b></p>
+      <img src="Demo_images/device_config1.png" alt="Device Config 1" style="width:100%; max-width:400px;"/>
+    </td>
+    <td align="center" width="50%">
+      <p><b>Device Config 2</b></p>
+      <img src="Demo_images/device_config2.png" alt="Device Config 2" style="width:100%; max-width:400px;"/>
+    </td>
+  </tr>
+</table>
 
-![Dashboard](Demo_images/Dashboard.png)
-
-![Overview](Demo_images/Overview.png)
-
-![device config1](Demo_images/device_config1.png)
-
-![device config2](Demo_images/device_config2.png)
 
 ## 🛠️ Tech Stack
 
