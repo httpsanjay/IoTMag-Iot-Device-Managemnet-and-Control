@@ -1,5 +1,10 @@
 <div align="center">
 
+<p align="center">
+  <img src="Banner.png" alt="Alt text describing your banner" width="100%">
+</p>
+
+
 # IoT Mag
 
 **A Django backend and dashboard for registering, authenticating, monitoring, and commanding IoT devices.**
